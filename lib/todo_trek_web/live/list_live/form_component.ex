@@ -17,42 +17,7 @@ defmodule TodoTrekWeb.ListLive.FormComponent do
       >
         <div class="space-y-4 mb-6">
           <.input field={@form[:title]} type="text" />
-
-          <label class="block cursor-pointer">
-            <input type="checkbox" name="list[notifications_order][]" class="hidden" />
-            <.icon name="hero-plus-circle" /> prepend
-          </label>
-          <h1 class="text-md font-semibold leading-8 text-zinc-800">
-            Invite Users
-          </h1>
-          <div id="notifications" phx-hook="SortableInputsFor" class="space-y-2">
-            <.inputs_for :let={f_nested} field={@form[:notifications]}>
-              <div class="flex space-x-2 drag-item">
-                <input type="hidden" name="list[notifications_order][]" value={f_nested.index} />
-                <.icon name="hero-bars-3" class="w-6 h-6 relative top-2" data-handle />
-                <.input type="text" field={f_nested[:email]} placeholder="email" />
-                <.input type="text" field={f_nested[:name]} placeholder="name" />
-                <label>
-                  <input
-                    type="checkbox"
-                    name="list[notifications_delete][]"
-                    value={f_nested.index}
-                    class="hidden"
-                  />
-                  <.icon name="hero-x-mark" class="w-6 h-6 relative top-2" />
-                </label>
-              </div>
-            </.inputs_for>
-          </div>
-
-          <label class="block cursor-pointer">
-            <input type="checkbox" name="list[notifications_order][]" class="hidden" />
-            <.icon name="hero-plus-circle" /> add more
-          </label>
         </div>
-
-        <input type="hidden" name="list[notifications_delete][]" />
-
         <:actions>
           <.button phx-disable-with="Saving...">
             Save List
