@@ -1,8 +1,8 @@
-defmodule TodoTrekWeb.UserRegistrationLiveTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.UserRegistrationLiveTest do
+  use LinkuWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import TodoTrek.AccountsFixtures
+  import Linku.AccountsFixtures
 
   describe "Registration page" do
     test "renders registration page", %{conn: conn} do

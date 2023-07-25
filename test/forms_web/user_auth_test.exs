@@ -1,17 +1,17 @@
-defmodule TodoTrekWeb.UserAuthTest do
-  use TodoTrekWeb.ConnCase, async: true
+defmodule LinkuWeb.UserAuthTest do
+  use LinkuWeb.ConnCase, async: true
 
   alias Phoenix.LiveView
-  alias TodoTrek.Accounts
-  alias TodoTrekWeb.UserAuth
-  import TodoTrek.AccountsFixtures
+  alias Linku.Accounts
+  alias LinkuWeb.UserAuth
+  import Linku.AccountsFixtures
 
   @remember_me_cookie "_forms_web_user_remember_me"
 
   setup %{conn: conn} do
     conn =
       conn
-      |> Map.replace!(:secret_key_base, TodoTrekWeb.Endpoint.config(:secret_key_base))
+      |> Map.replace!(:secret_key_base, LinkuWeb.Endpoint.config(:secret_key_base))
       |> init_test_session(%{})
 
     %{user: user_fixture(), conn: conn}
@@ -66,7 +66,7 @@ defmodule TodoTrekWeb.UserAuthTest do
 
     test "broadcasts to the given live_socket_id", %{conn: conn} do
       live_socket_id = "users_sessions:abcdef-token"
-      TodoTrekWeb.Endpoint.subscribe(live_socket_id)
+      LinkuWeb.Endpoint.subscribe(live_socket_id)
 
       conn
       |> put_session(:live_socket_id, live_socket_id)
@@ -164,7 +164,7 @@ defmodule TodoTrekWeb.UserAuthTest do
       session = conn |> put_session(:user_token, user_token) |> get_session()
 
       socket = %LiveView.Socket{
-        endpoint: TodoTrekWeb.Endpoint,
+        endpoint: LinkuWeb.Endpoint,
         assigns: %{__changed__: %{}, flash: %{}}
       }
 
@@ -176,7 +176,7 @@ defmodule TodoTrekWeb.UserAuthTest do
       session = conn |> get_session()
 
       socket = %LiveView.Socket{
-        endpoint: TodoTrekWeb.Endpoint,
+        endpoint: LinkuWeb.Endpoint,
         assigns: %{__changed__: %{}, flash: %{}}
       }
 

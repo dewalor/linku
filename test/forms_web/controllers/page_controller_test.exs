@@ -1,5 +1,5 @@
-defmodule TodoTrekWeb.PageControllerTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.PageControllerTest do
+  use LinkuWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")

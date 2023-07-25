@@ -1,8 +1,8 @@
-defmodule TodoTrekWeb.UserLoginLiveTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.UserLoginLiveTest do
+  use LinkuWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import TodoTrek.AccountsFixtures
+  import Linku.AccountsFixtures
 
   describe "Log in page" do
     test "renders log in page", %{conn: conn} do

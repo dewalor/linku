@@ -1,9 +1,9 @@
-defmodule TodoTrekWeb.UserSettingsLiveTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.UserSettingsLiveTest do
+  use LinkuWeb.ConnCase
 
-  alias TodoTrek.Accounts
+  alias Linku.Accounts
   import Phoenix.LiveViewTest
-  import TodoTrek.AccountsFixtures
+  import Linku.AccountsFixtures
 
   describe "Settings page" do
     test "renders settings page", %{conn: conn} do

@@ -1,7 +1,7 @@
-defmodule TodoTrek.AccountsFixtures do
+defmodule Linku.AccountsFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `TodoTrek.Accounts` context.
+  entities via the `Linku.Accounts` context.
   """
 
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
@@ -18,7 +18,7 @@ defmodule TodoTrek.AccountsFixtures do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
-      |> TodoTrek.Accounts.register_user()
+      |> Linku.Accounts.register_user()
 
     user
   end

@@ -1,7 +1,7 @@
-defmodule TodoTrek.TodosFixtures do
+defmodule Linku.TodosFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `TodoTrek.Todos` context.
+  entities via the `Linku.Todos` context.
   """
 
   @doc """
@@ -13,7 +13,7 @@ defmodule TodoTrek.TodosFixtures do
       |> Enum.into(%{
         title: "some title"
       })
-      |> TodoTrek.Todos.create_list()
+      |> Linku.Todos.create_list()
 
     list
   end

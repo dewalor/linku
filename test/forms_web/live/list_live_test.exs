@@ -1,8 +1,8 @@
-defmodule TodoTrekWeb.ListLiveTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.ListLiveTest do
+  use LinkuWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import TodoTrek.TodosFixtures
+  import Linku.TodosFixtures
 
   @create_attrs %{title: "some title"}
   @update_attrs %{title: "some updated title"}

@@ -1,11 +1,11 @@
-defmodule TodoTrekWeb.UserConfirmationInstructionsLiveTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.UserConfirmationInstructionsLiveTest do
+  use LinkuWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import TodoTrek.AccountsFixtures
+  import Linku.AccountsFixtures
 
-  alias TodoTrek.Accounts
-  alias TodoTrek.Repo
+  alias Linku.Accounts
+  alias Linku.Repo
 
   setup do
     %{user: user_fixture()}

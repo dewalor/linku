@@ -1,7 +1,7 @@
-defmodule TodoTrekWeb.UserSessionControllerTest do
-  use TodoTrekWeb.ConnCase, async: true
+defmodule LinkuWeb.UserSessionControllerTest do
+  use LinkuWeb.ConnCase, async: true
 
-  import TodoTrek.AccountsFixtures
+  import Linku.AccountsFixtures
 
   setup do
     %{user: user_fixture()}

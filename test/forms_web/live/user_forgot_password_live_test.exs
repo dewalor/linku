@@ -1,11 +1,11 @@
-defmodule TodoTrekWeb.UserForgotPasswordLiveTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.UserForgotPasswordLiveTest do
+  use LinkuWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import TodoTrek.AccountsFixtures
+  import Linku.AccountsFixtures
 
-  alias TodoTrek.Accounts
-  alias TodoTrek.Repo
+  alias Linku.Accounts
+  alias Linku.Repo
 
   describe "Forgot password page" do
     test "renders email page", %{conn: conn} do

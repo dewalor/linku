@@ -1,12 +1,12 @@
-defmodule TodoTrek.TodosTest do
-  use TodoTrek.DataCase
+defmodule Linku.TodosTest do
+  use Linku.DataCase
 
-  alias TodoTrek.Todos
+  alias Linku.Todos
 
   describe "lists" do
-    alias TodoTrek.Todos.List
+    alias Linku.Todos.List
 
-    import TodoTrek.TodosFixtures
+    import Linku.TodosFixtures
 
     @invalid_attrs %{title: nil}
 

@@ -1,4 +1,4 @@
-defmodule TodoTrek.Repo.Migrations.CreateActivityLogEntries do
+defmodule Linku.Repo.Migrations.CreateActivityLogEntries do
   use Ecto.Migration
 
   def change do

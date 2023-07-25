@@ -1,4 +1,4 @@
-defmodule TodoTrek.Repo.Migrations.CreateLists do
+defmodule Linku.Repo.Migrations.CreateLists do
   use Ecto.Migration
 
   def change do

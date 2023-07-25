@@ -1,10 +1,10 @@
-defmodule TodoTrekWeb.UserResetPasswordLiveTest do
-  use TodoTrekWeb.ConnCase
+defmodule LinkuWeb.UserResetPasswordLiveTest do
+  use LinkuWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import TodoTrek.AccountsFixtures
+  import Linku.AccountsFixtures
 
-  alias TodoTrek.Accounts
+  alias Linku.Accounts
 
   setup do
     user = user_fixture()

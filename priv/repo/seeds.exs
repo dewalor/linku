@@ -1,4 +1,4 @@
-alias TodoTrek.{Accounts, Todos, Scope}
+alias Linku.{Accounts, Todos, Scope}
 
 {:ok, user} =
   Accounts.register_user(%{

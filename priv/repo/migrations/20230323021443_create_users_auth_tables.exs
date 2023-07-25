@@ -1,4 +1,4 @@
-defmodule TodoTrek.Repo.Migrations.CreateUsersAuthTables do
+defmodule Linku.Repo.Migrations.CreateUsersAuthTables do
   use Ecto.Migration
 
   def change do
