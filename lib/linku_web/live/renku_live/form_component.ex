@@ -1,4 +1,4 @@
-defmodule LinkuWeb.ListLive.FormComponent do
+defmodule LinkuWeb.RenkuLive.FormComponent do
   use LinkuWeb, :live_component
 
   alias Linku.Todos
@@ -10,7 +10,7 @@ defmodule LinkuWeb.ListLive.FormComponent do
       <.header><%= @title %></.header>
       <.simple_form
         for={@form}
-        id="list-form"
+        id="renku-form"
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
@@ -20,7 +20,7 @@ defmodule LinkuWeb.ListLive.FormComponent do
         </div>
         <:actions>
           <.button phx-disable-with="Saving...">
-            Save List
+            Save Renku
           </.button>
         </:actions>
       </.simple_form>
@@ -29,8 +29,8 @@ defmodule LinkuWeb.ListLive.FormComponent do
   end
 
   @impl true
-  def update(%{list: list} = assigns, socket) do
-    changeset = Todos.change_list(list)
+  def update(%{renku: renku} = assigns, socket) do
+    changeset = Todos.change_renku(renku)
 
     {:ok,
      socket
@@ -39,25 +39,25 @@ defmodule LinkuWeb.ListLive.FormComponent do
   end
 
   @impl true
-  def handle_event("validate", %{"list" => list_params}, socket) do
+  def handle_event("validate", %{"renku" => renku_params}, socket) do
     changeset =
-      socket.assigns.list
-      |> Todos.change_list(list_params)
+      socket.assigns.renku
+      |> Todos.change_renku(renku_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
   end
 
-  def handle_event("save", %{"list" => list_params}, socket) do
-    save_list(socket, socket.assigns.action, list_params)
+  def handle_event("save", %{"renku" => renku_params}, socket) do
+    save_renku(socket, socket.assigns.action, renku_params)
   end
 
-  defp save_list(socket, :edit_list, list_params) do
-    case Todos.update_list(socket.assigns.scope, socket.assigns.list, list_params) do
-      {:ok, _list} ->
+  defp save_renku(socket, :edit_renku, renku_params) do
+    case Todos.update_renku(socket.assigns.scope, socket.assigns.renku, renku_params) do
+      {:ok, _renku} ->
         {:noreply,
          socket
-         |> put_flash(:info, "List updated successfully")
+         |> put_flash(:info, "Renku updated successfully")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -65,12 +65,12 @@ defmodule LinkuWeb.ListLive.FormComponent do
     end
   end
 
-  defp save_list(socket, :new_list, list_params) do
-    case Todos.create_list(socket.assigns.scope, list_params) do
-      {:ok, _list} ->
+  defp save_renku(socket, :new_renku, renku_params) do
+    case Todos.create_renku(socket.assigns.scope, renku_params) do
+      {:ok, _renku} ->
         {:noreply,
          socket
-         |> put_flash(:info, "List created successfully")
+         |> put_flash(:info, "Renku created successfully")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->

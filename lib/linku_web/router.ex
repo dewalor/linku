@@ -23,8 +23,8 @@ defmodule LinkuWeb.Router do
     live_session :default,
       on_mount: [{LinkuWeb.UserAuth, :ensure_authenticated}, LinkuWeb.Scope] do
       live "/", HomeLive, :dashboard
-      live "/lists/new", HomeLive, :new_list
-      live "/lists/:id/edit", HomeLive, :edit_list
+      live "/renkus/new", HomeLive, :new_renku
+      live "/renkus/:id/edit", HomeLive, :edit_renku
     end
   end
 

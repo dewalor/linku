@@ -41,7 +41,7 @@ defmodule LinkuWeb.Timeline do
   attr :action, :string, required: true
   attr :entry, ActivityLog.Entry, required: true
 
-  defp activity_entry(%{action: "list_position_updated"} = assigns) do
+  defp activity_entry(%{action: "renku_position_updated"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -54,7 +54,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> repositioned list "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> repositioned renku "<%= @entry.subject_text %>"
               from <span class="font-medium text-gray-900"><%= @entry.before_text %></span>
               to <span class="font-medium text-gray-900"><%= @entry.after_text %></span>
             </p>
@@ -109,8 +109,8 @@ defmodule LinkuWeb.Timeline do
           <div>
             <p class="text-sm text-gray-500">
               <%= @entry.performer_text %> moved todo "<%= @entry.subject_text %>"
-              from list <span class="font-medium text-gray-900">"<%= @entry.before_text %>"</span>
-              to list <span class="font-medium text-gray-900">"<%= @entry.after_text %>"</span>
+              from renku <span class="font-medium text-gray-900">"<%= @entry.before_text %>"</span>
+              to renku <span class="font-medium text-gray-900">"<%= @entry.after_text %>"</span>
             </p>
           </div>
           <div class="whitespace-nowrap text-right text-sm text-gray-500">
@@ -223,7 +223,7 @@ defmodule LinkuWeb.Timeline do
           <div>
             <p class="text-sm text-gray-500">
               <%= @entry.performer_text %> created new todo "<%= @entry.subject_text %>"
-              on list
+              on renku
               "<%= @entry.after_text %>"
             </p>
           </div>
@@ -236,7 +236,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "list_created"} = assigns) do
+  defp activity_entry(%{action: "renku_created"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -249,7 +249,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> created new list "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> created new renku "<%= @entry.subject_text %>"
             </p>
           </div>
           <div class="whitespace-nowrap text-right text-sm text-gray-500">
@@ -261,7 +261,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "list_updated"} = assigns) do
+  defp activity_entry(%{action: "renku_updated"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -274,7 +274,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> updated list "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> updated renku "<%= @entry.subject_text %>"
               to <span class="font-medium text-gray-900">"<%= @entry.after_text %>"</span>
             </p>
           </div>
@@ -287,7 +287,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "list_deleted"} = assigns) do
+  defp activity_entry(%{action: "renku_deleted"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -300,7 +300,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> deleted list "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> deleted renku "<%= @entry.subject_text %>"
             </p>
           </div>
           <div class="whitespace-nowrap text-right text-sm text-gray-500">

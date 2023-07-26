@@ -7,7 +7,7 @@ defmodule Linku.Todos.Todo do
     field :title, :string
     field :position, :integer
 
-    belongs_to :list, Linku.Todos.List
+    belongs_to :renku, Linku.Todos.Renku
     belongs_to :user, Linku.Accounts.User
 
     timestamps()

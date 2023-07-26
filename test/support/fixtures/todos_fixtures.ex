@@ -5,16 +5,16 @@ defmodule Linku.TodosFixtures do
   """
 
   @doc """
-  Generate a list.
+  Generate a renku.
   """
-  def list_fixture(attrs \\ %{}) do
-    {:ok, list} =
+  def renku_fixture(attrs \\ %{}) do
+    {:ok, renku} =
       attrs
       |> Enum.into(%{
         title: "some title"
       })
-      |> Linku.Todos.create_list()
+      |> Linku.Todos.create_renku()
 
-    list
+    renku
   end
 end

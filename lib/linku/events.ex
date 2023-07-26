@@ -2,12 +2,12 @@ defmodule Linku.Events do
   @moduledoc """
   Defines Event structs for use within the pubsub system.
   """
-  defmodule ListAdded do
-    defstruct list: nil, log: nil
+  defmodule RenkuAdded do
+    defstruct renku: nil, log: nil
   end
 
-  defmodule ListUpdated do
-    defstruct list: nil, log: nil
+  defmodule RenkuUpdated do
+    defstruct renku: nil, log: nil
   end
 
   defmodule TodoAdded do
@@ -27,18 +27,18 @@ defmodule Linku.Events do
   end
 
   defmodule TodoMoved do
-    defstruct todo: nil, from_list_id: nil, to_list_id: nil, log: nil
+    defstruct todo: nil, from_renku_id: nil, to_renku_id: nil, log: nil
   end
 
-  defmodule ListRepositioned do
-    defstruct list: nil, log: nil
+  defmodule RenkuRepositioned do
+    defstruct renku: nil, log: nil
   end
 
   defmodule TodoToggled do
     defstruct todo: nil, log: nil
   end
 
-  defmodule ListDeleted do
-    defstruct list: nil, log: nil
+  defmodule RenkuDeleted do
+    defstruct renku: nil, log: nil
   end
 end

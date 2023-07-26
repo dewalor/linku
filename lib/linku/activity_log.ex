@@ -15,16 +15,16 @@ defmodule Linku.ActivityLog do
   def log(%Scope{} = scope, %Todos.Todo{} = todo, %{} = attrs) do
     id = if todo.__meta__.state == :deleted, do: nil, else: todo.id
 
-    %Entry{todo_id: id, list_id: todo.list_id, user_id: scope.current_user_id}
+    %Entry{todo_id: id, renku_id: todo.renku_id, user_id: scope.current_user_id}
     |> put_performer(scope)
     |> Entry.changeset(attrs)
     |> Repo.insert!()
   end
 
-  def log(%Scope{} = scope, %Todos.List{} = list, %{} = attrs) do
-    id = if list.__meta__.state == :deleted, do: nil, else: list.id
+  def log(%Scope{} = scope, %Todos.Renku{} = renku, %{} = attrs) do
+    id = if renku.__meta__.state == :deleted, do: nil, else: renku.id
 
-    %Entry{list_id: id, user_id: scope.current_user_id}
+    %Entry{renku_id: id, user_id: scope.current_user_id}
     |> put_performer(scope)
     |> Entry.changeset(attrs)
     |> Repo.insert!()

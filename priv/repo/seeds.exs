@@ -7,9 +7,9 @@ alias Linku.{Accounts, Todos, Scope}
   })
 
 scope = Scope.for_user(user)
-{:ok, home} = Todos.create_list(scope, %{title: "Home"})
-{:ok, personal} = Todos.create_list(scope, %{title: "Personal"})
-{:ok, social} = Todos.create_list(scope, %{title: "Social/Professional"})
+{:ok, home} = Todos.create_renku(scope, %{title: "Home"})
+{:ok, personal} = Todos.create_renku(scope, %{title: "Personal"})
+{:ok, social} = Todos.create_renku(scope, %{title: "Social/Professional"})
 
 # Personal
 [

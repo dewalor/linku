@@ -34,7 +34,7 @@ defmodule Linku.ActivityLog.Entry do
     field :after_text, Linku.EctoTypes.Stringable
 
     belongs_to :todo, Linku.Todos.Todo
-    belongs_to :list, Linku.Todos.List
+    belongs_to :renku, Linku.Todos.Renku
     belongs_to :user, Linku.Accounts.User
 
     timestamps()

@@ -3,57 +3,57 @@ defmodule Linku.TodosTest do
 
   alias Linku.Todos
 
-  describe "lists" do
-    alias Linku.Todos.List
+  describe "renkus" do
+    alias Linku.Todos.Renku
 
     import Linku.TodosFixtures
 
     @invalid_attrs %{title: nil}
 
-    test "list_lists/0 returns all lists" do
-      list = list_fixture()
-      assert Todos.list_lists() == [list]
+    test "list_renkus/0 returns all renkus" do
+      renku = renku_fixture()
+      assert Todos.list_renkus() == [renku]
     end
 
-    test "get_list!/1 returns the list with given id" do
-      list = list_fixture()
-      assert Todos.get_list!(list.id) == list
+    test "get_renku!/1 returns the renku with given id" do
+      renku = renku_fixture()
+      assert Todos.get_renku!(renku.id) == renku
     end
 
-    test "create_list/1 with valid data creates a list" do
+    test "create_renku/1 with valid data creates a renku" do
       valid_attrs = %{title: "some title"}
 
-      assert {:ok, %List{} = list} = Todos.create_list(valid_attrs)
-      assert list.title == "some title"
+      assert {:ok, %Renku{} = renku} = Todos.create_renku(valid_attrs)
+      assert renku.title == "some title"
     end
 
-    test "create_list/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Todos.create_list(@invalid_attrs)
+    test "create_renku/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Todos.create_renku(@invalid_attrs)
     end
 
-    test "update_list/2 with valid data updates the list" do
-      list = list_fixture()
+    test "update_renku/2 with valid data updates the renku" do
+      renku = renku_fixture()
       update_attrs = %{title: "some updated title"}
 
-      assert {:ok, %List{} = list} = Todos.update_list(list, update_attrs)
-      assert list.title == "some updated title"
+      assert {:ok, %Renku{} = renku} = Todos.update_renku(renku, update_attrs)
+      assert renku.title == "some updated title"
     end
 
-    test "update_list/2 with invalid data returns error changeset" do
-      list = list_fixture()
-      assert {:error, %Ecto.Changeset{}} = Todos.update_list(list, @invalid_attrs)
-      assert list == Todos.get_list!(list.id)
+    test "update_renku/2 with invalid data returns error changeset" do
+      renku = renku_fixture()
+      assert {:error, %Ecto.Changeset{}} = Todos.update_renku(renku, @invalid_attrs)
+      assert renku == Todos.get_renku!(renku.id)
     end
 
-    test "delete_list/1 deletes the list" do
-      list = list_fixture()
-      assert {:ok, %List{}} = Todos.delete_list(list)
-      assert_raise Ecto.NoResultsError, fn -> Todos.get_list!(list.id) end
+    test "delete_renku/1 deletes the renku" do
+      renku = renku_fixture()
+      assert {:ok, %Renku{}} = Todos.delete_renku(renku)
+      assert_raise Ecto.NoResultsError, fn -> Todos.get_renku!(renku.id) end
     end
 
-    test "change_list/1 returns a list changeset" do
-      list = list_fixture()
-      assert %Ecto.Changeset{} = Todos.change_list(list)
+    test "change_renku/1 returns a renku changeset" do
+      renku = renku_fixture()
+      assert %Ecto.Changeset{} = Todos.change_renku(renku)
     end
   end
 end

@@ -8,42 +8,42 @@ defmodule LinkuWeb.HomeLive do
     ~H"""
     <div id="home" class="space-y-5">
       <.header>
-        Your Lists
+        Your Renkus
         <:actions>
-          <.link patch={~p"/lists/new"}>
-            <.button>New List</.button>
+          <.link patch={~p"/renkus/new"}>
+            <.button>New Renku</.button>
           </.link>
         </:actions>
       </.header>
       <div
-        id="lists"
+        id="renkus"
         phx-update="stream"
         phx-hook="Sortable"
         class="grid sm:grid-cols-1 md:grid-cols-3 gap-2"
       >
         <div
-          :for={{id, list} <- @streams.lists}
+          :for={{id, renku} <- @streams.renkus}
           id={id}
-          data-id={list.id}
+          data-id={renku.id}
           class="bg-gray-100 py-4 rounded-lg"
         >
           <div class="mx-auto max-w-7xl px-4 space-y-4">
             <.header>
-              <%= list.title %>
+              <%= renku.title %>
               <:actions>
-                <.link patch={~p"/lists/#{list}/edit"} alt="Edit list">
+                <.link patch={~p"/renkus/#{renku}/edit"} alt="Edit renku">
                   <.icon name="hero-pencil-square" />
                 </.link>
-                <.link phx-click="delete-list" phx-value-id={list.id} alt="delete list" data-confirm="Are you sure?">
+                <.link phx-click="delete-renku" phx-value-id={renku.id} alt="delete renku" data-confirm="Are you sure?">
                   <.icon name="hero-x-mark" />
                 </.link>
               </:actions>
             </.header>
             <.live_component
-              id={list.id}
-              module={LinkuWeb.TodoListComponent}
+              id={renku.id}
+              module={LinkuWeb.RenkuComponent}
               scope={@scope}
-              list={list}
+              renku={renku}
             />
           </div>
         </div>
@@ -51,18 +51,18 @@ defmodule LinkuWeb.HomeLive do
       <Timeline.activity_logs stream={@streams.activity_logs} page={@page} end_of_timeline?={@end_of_timeline?}/>
     </div>
     <.modal
-      :if={@live_action in [:new_list, :edit_list]}
-      id="list-modal"
+      :if={@live_action in [:new_renku, :edit_renku]}
+      id="renku-modal"
       show
       on_cancel={JS.patch(~p"/")}
     >
       <.live_component
         scope={@scope}
-        module={LinkuWeb.ListLive.FormComponent}
-        id={@list.id || :new}
+        module={LinkuWeb.RenkuLive.FormComponent}
+        id={@renku.id || :new}
         title={@page_title}
         action={@live_action}
-        list={@list}
+        renku={@renku}
         patch={~p"/"}
       />
     </.modal>
@@ -74,12 +74,12 @@ defmodule LinkuWeb.HomeLive do
       Todos.subscribe(socket.assigns.scope)
     end
 
-    lists = Todos.active_lists(socket.assigns.scope, 20)
+    renkus = Todos.active_renkus(socket.assigns.scope, 20)
 
     {:ok,
      socket
      |> assign(page: 1, per_page: 20)
-     |> stream(:lists, lists)
+     |> stream(:renkus, renkus)
      |> paginate_logs(1)}
   end
 
@@ -90,63 +90,63 @@ defmodule LinkuWeb.HomeLive do
   defp apply_action(socket, :dashboard, _params) do
     socket
     |> assign(:page_title, "Dashboard")
-    |> assign(:list, nil)
+    |> assign(:renku, nil)
   end
 
-  defp apply_action(socket, :new_list, _params) do
+  defp apply_action(socket, :new_renku, _params) do
     socket
-    |> assign(:page_title, "New List")
-    |> assign(:list, %Todos.List{})
+    |> assign(:page_title, "New Renku")
+    |> assign(:renku, %Todos.Renku{})
   end
 
-  defp apply_action(socket, :edit_list, %{"id" => id}) do
+  defp apply_action(socket, :edit_renku, %{"id" => id}) do
     socket
-    |> assign(:page_title, "Edit List")
-    |> assign(:list, Todos.get_list!(socket.assigns.scope, id))
+    |> assign(:page_title, "Edit Renku")
+    |> assign(:renku, Todos.get_renku!(socket.assigns.scope, id))
   end
 
-  def handle_info({Linku.Todos, %Events.ListAdded{list: list} = event}, socket) do
+  def handle_info({Linku.Todos, %Events.RenkuAdded{renku: renku} = event}, socket) do
     {:noreply,
      socket
-     |> stream_insert(:lists, list)
+     |> stream_insert(:renkus, renku)
      |> stream_new_log(event)}
   end
 
-  def handle_info({Linku.Todos, %Events.ListUpdated{list: list} = event}, socket) do
+  def handle_info({Linku.Todos, %Events.RenkuUpdated{renku: renku} = event}, socket) do
     {:noreply,
      socket
-     |> stream_insert(:lists, list)
+     |> stream_insert(:renkus, renku)
      |> stream_new_log(event)}
   end
 
-  def handle_info({Linku.Todos, %Events.ListDeleted{list: list} = event}, socket) do
+  def handle_info({Linku.Todos, %Events.RenkuDeleted{renku: renku} = event}, socket) do
     {:noreply,
      socket
-     |> stream_delete(:lists, list)
+     |> stream_delete(:renkus, renku)
      |> stream_new_log(event)}
   end
 
   def handle_info({Linku.Todos, %_event{todo: todo} = event}, socket) do
-    send_update(LinkuWeb.TodoListComponent, id: todo.list_id, event: event)
+    send_update(LinkuWeb.RenkuComponent, id: todo.renku_id, event: event)
     {:noreply, stream_new_log(socket, event)}
   end
 
-  def handle_info({Linku.Todos, %Events.ListRepositioned{list: list} = event}, socket) do
+  def handle_info({Linku.Todos, %Events.RenkuRepositioned{renku: renku} = event}, socket) do
     {:noreply,
      socket
-     |> stream_insert(:lists, list, at: list.position)
+     |> stream_insert(:renkus, renku, at: renku.position)
      |> stream_new_log(event)}
   end
 
   def handle_event("reposition", %{"id" => id, "new" => new_idx, "old" => _old_idx}, socket) do
-    list = Todos.get_list!(socket.assigns.scope, id)
-    Todos.update_list_position(socket.assigns.scope, list, new_idx)
+    renku = Todos.get_renku!(socket.assigns.scope, id)
+    Todos.update_renku_position(socket.assigns.scope, renku, new_idx)
     {:noreply, socket}
   end
 
-  def handle_event("delete-list", %{"id" => id}, socket) do
-    list = Todos.get_list!(socket.assigns.scope, id)
-    Todos.delete_list(socket.assigns.scope, list)
+  def handle_event("delete-renku", %{"id" => id}, socket) do
+    renku = Todos.get_renku!(socket.assigns.scope, id)
+    Todos.delete_renku(socket.assigns.scope, renku)
     {:noreply, socket}
   end
 
