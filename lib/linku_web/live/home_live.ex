@@ -1,7 +1,7 @@
 defmodule LinkuWeb.HomeLive do
   use LinkuWeb, :live_view
 
-  alias Linku.{Events, Todos, ActivityLog}
+  alias Linku.{Events, Notebook, ActivityLog}
   alias LinkuWeb.Timeline
 
   def render(assigns) do
@@ -71,10 +71,10 @@ defmodule LinkuWeb.HomeLive do
 
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      Todos.subscribe(socket.assigns.scope)
+      Notebook.subscribe(socket.assigns.scope)
     end
 
-    renkus = Todos.active_renkus(socket.assigns.scope, 20)
+    renkus = Notebook.active_renkus(socket.assigns.scope, 20)
 
     {:ok,
      socket
@@ -96,42 +96,42 @@ defmodule LinkuWeb.HomeLive do
   defp apply_action(socket, :new_renku, _params) do
     socket
     |> assign(:page_title, "New Renku")
-    |> assign(:renku, %Todos.Renku{})
+    |> assign(:renku, %Notebook.Renku{})
   end
 
   defp apply_action(socket, :edit_renku, %{"id" => id}) do
     socket
     |> assign(:page_title, "Edit Renku")
-    |> assign(:renku, Todos.get_renku!(socket.assigns.scope, id))
+    |> assign(:renku, Notebook.get_renku!(socket.assigns.scope, id))
   end
 
-  def handle_info({Linku.Todos, %Events.RenkuAdded{renku: renku} = event}, socket) do
+  def handle_info({Linku.Notebook, %Events.RenkuAdded{renku: renku} = event}, socket) do
     {:noreply,
      socket
      |> stream_insert(:renkus, renku)
      |> stream_new_log(event)}
   end
 
-  def handle_info({Linku.Todos, %Events.RenkuUpdated{renku: renku} = event}, socket) do
+  def handle_info({Linku.Notebook, %Events.RenkuUpdated{renku: renku} = event}, socket) do
     {:noreply,
      socket
      |> stream_insert(:renkus, renku)
      |> stream_new_log(event)}
   end
 
-  def handle_info({Linku.Todos, %Events.RenkuDeleted{renku: renku} = event}, socket) do
+  def handle_info({Linku.Notebook, %Events.RenkuDeleted{renku: renku} = event}, socket) do
     {:noreply,
      socket
      |> stream_delete(:renkus, renku)
      |> stream_new_log(event)}
   end
 
-  def handle_info({Linku.Todos, %_event{todo: todo} = event}, socket) do
+  def handle_info({Linku.Notebook, %_event{todo: todo} = event}, socket) do
     send_update(LinkuWeb.RenkuComponent, id: todo.renku_id, event: event)
     {:noreply, stream_new_log(socket, event)}
   end
 
-  def handle_info({Linku.Todos, %Events.RenkuRepositioned{renku: renku} = event}, socket) do
+  def handle_info({Linku.Notebook, %Events.RenkuRepositioned{renku: renku} = event}, socket) do
     {:noreply,
      socket
      |> stream_insert(:renkus, renku, at: renku.position)
@@ -139,14 +139,14 @@ defmodule LinkuWeb.HomeLive do
   end
 
   def handle_event("reposition", %{"id" => id, "new" => new_idx, "old" => _old_idx}, socket) do
-    renku = Todos.get_renku!(socket.assigns.scope, id)
-    Todos.update_renku_position(socket.assigns.scope, renku, new_idx)
+    renku = Notebook.get_renku!(socket.assigns.scope, id)
+    Notebook.update_renku_position(socket.assigns.scope, renku, new_idx)
     {:noreply, socket}
   end
 
   def handle_event("delete-renku", %{"id" => id}, socket) do
-    renku = Todos.get_renku!(socket.assigns.scope, id)
-    Todos.delete_renku(socket.assigns.scope, renku)
+    renku = Notebook.get_renku!(socket.assigns.scope, id)
+    Notebook.delete_renku(socket.assigns.scope, renku)
     {:noreply, socket}
   end
 

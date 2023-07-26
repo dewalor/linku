@@ -1,8 +1,8 @@
 defmodule LinkuWeb.RenkuComponent do
   use LinkuWeb, :live_component
 
-  alias Linku.{Events, Todos}
-  alias Linku.Todos.Todo
+  alias Linku.{Events, Notebook}
+  alias Linku.Notebook.Todo
 
   def render(assigns) do
     ~H"""
@@ -126,9 +126,9 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("save", %{"id" => id, "todo" => params}, socket) do
-    todo = Todos.get_todo!(socket.assigns.scope, id)
+    todo = Notebook.get_todo!(socket.assigns.scope, id)
 
-    case Todos.update_todo(socket.assigns.scope, todo, params) do
+    case Notebook.update_todo(socket.assigns.scope, todo, params) do
       {:ok, updated_todo} ->
         {:noreply, stream_insert(socket, :todos, to_change_form(updated_todo, %{}))}
 
@@ -138,9 +138,9 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("save", %{"todo" => params}, socket) do
-    renku = Todos.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
+    renku = Notebook.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
 
-    case Todos.create_todo(socket.assigns.scope, renku, params) do
+    case Notebook.create_todo(socket.assigns.scope, renku, params) do
       {:ok, new_todo} ->
         empty_form = to_change_form(build_todo(socket.assigns.renku_id), %{})
 
@@ -156,15 +156,15 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("delete", %{"id" => id}, socket) do
-    todo = Todos.get_todo!(socket.assigns.scope, id)
-    {:ok, _} = Todos.delete_todo(socket.assigns.scope, todo)
+    todo = Notebook.get_todo!(socket.assigns.scope, id)
+    {:ok, _} = Notebook.delete_todo(socket.assigns.scope, todo)
 
     {:noreply, socket}
   end
 
   def handle_event("toggle_complete", %{"id" => id}, socket) do
-    todo = Todos.get_todo!(socket.assigns.scope, id)
-    {:ok, _todo} = Todos.toggle_complete(socket.assigns.scope, todo)
+    todo = Notebook.get_todo!(socket.assigns.scope, id)
+    {:ok, _todo} = Notebook.toggle_complete(socket.assigns.scope, todo)
 
     {:noreply, socket}
   end
@@ -182,14 +182,14 @@ defmodule LinkuWeb.RenkuComponent do
   def handle_event("reposition", %{"id" => id, "new" => new_idx, "old" => _} = params, socket) do
     case params do
       %{"renku_id" => old_renku_id, "to" => %{"renku_id" => old_renku_id}} ->
-        todo = Todos.get_todo!(socket.assigns.scope, id)
-        Todos.update_todo_position(socket.assigns.scope, todo, new_idx)
+        todo = Notebook.get_todo!(socket.assigns.scope, id)
+        Notebook.update_todo_position(socket.assigns.scope, todo, new_idx)
         {:noreply, socket}
 
       %{"renku_id" => _old_renku_id, "to" => %{"renku_id" => new_renku_id}} ->
-        todo = Todos.get_todo!(socket.assigns.scope, id)
-        renku = Todos.get_renku!(socket.assigns.scope, new_renku_id)
-        Todos.move_todo_to_renku(socket.assigns.scope, todo, renku, new_idx)
+        todo = Notebook.get_todo!(socket.assigns.scope, id)
+        renku = Notebook.get_renku!(socket.assigns.scope, new_renku_id)
+        Notebook.move_todo_to_renku(socket.assigns.scope, todo, renku, new_idx)
         {:noreply, socket}
     end
   end
@@ -201,7 +201,7 @@ defmodule LinkuWeb.RenkuComponent do
 
   def handle_event("restore_if_unsaved", %{"value" => val} = params, socket) do
     id = params["id"]
-    todo = Todos.get_todo!(socket.assigns.scope, id)
+    todo = Notebook.get_todo!(socket.assigns.scope, id)
 
     if todo.title == val do
       {:noreply, socket}
@@ -213,7 +213,7 @@ defmodule LinkuWeb.RenkuComponent do
   defp to_change_form(todo_or_changeset, params, action \\ nil) do
     changeset =
       todo_or_changeset
-      |> Todos.change_todo(params)
+      |> Notebook.change_todo(params)
       |> Map.put(:action, action)
 
     to_form(changeset, as: "todo", id: "form-#{changeset.data.renku_id}-#{changeset.data.id}")

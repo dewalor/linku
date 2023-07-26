@@ -2,7 +2,7 @@ defmodule LinkuWeb.RenkuLiveTest do
   use LinkuWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import Linku.TodosFixtures
+  import Linku.NotebookFixtures
 
   @create_attrs %{title: "some title"}
   @update_attrs %{title: "some updated title"}

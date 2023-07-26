@@ -1,12 +1,12 @@
-defmodule Linku.Todos do
+defmodule Linku.Notebook do
   @moduledoc """
-  The Todos context.
+  The Notebook context.
   """
 
   import Ecto.Query, warn: false
   alias Linku.{Repo, Scope, Events}
 
-  alias Linku.Todos.{Renku, Todo}
+  alias Linku.Notebook.{Renku, Todo}
   alias Linku.ActivityLog
 
   @max_todos 1000

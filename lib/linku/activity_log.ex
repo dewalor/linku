@@ -10,9 +10,9 @@ defmodule Linku.ActivityLog do
   import Ecto.Query
   alias Linku.ActivityLog
   alias Linku.ActivityLog.Entry
-  alias Linku.{Repo, Scope, Todos}
+  alias Linku.{Repo, Scope, Notebook}
 
-  def log(%Scope{} = scope, %Todos.Todo{} = todo, %{} = attrs) do
+  def log(%Scope{} = scope, %Notebook.Todo{} = todo, %{} = attrs) do
     id = if todo.__meta__.state == :deleted, do: nil, else: todo.id
 
     %Entry{todo_id: id, renku_id: todo.renku_id, user_id: scope.current_user_id}
@@ -21,7 +21,7 @@ defmodule Linku.ActivityLog do
     |> Repo.insert!()
   end
 
-  def log(%Scope{} = scope, %Todos.Renku{} = renku, %{} = attrs) do
+  def log(%Scope{} = scope, %Notebook.Renku{} = renku, %{} = attrs) do
     id = if renku.__meta__.state == :deleted, do: nil, else: renku.id
 
     %Entry{renku_id: id, user_id: scope.current_user_id}
