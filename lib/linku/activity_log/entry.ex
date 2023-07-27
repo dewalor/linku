@@ -33,7 +33,7 @@ defmodule Linku.ActivityLog.Entry do
     field :before_text, Linku.EctoTypes.Stringable
     field :after_text, Linku.EctoTypes.Stringable
 
-    belongs_to :todo, Linku.Notebook.Todo
+    belongs_to :line, Linku.Notebook.Line
     belongs_to :renku, Linku.Notebook.Renku
     belongs_to :user, Linku.Accounts.User
 

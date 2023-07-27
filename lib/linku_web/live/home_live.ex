@@ -126,8 +126,8 @@ defmodule LinkuWeb.HomeLive do
      |> stream_new_log(event)}
   end
 
-  def handle_info({Linku.Notebook, %_event{todo: todo} = event}, socket) do
-    send_update(LinkuWeb.RenkuComponent, id: todo.renku_id, event: event)
+  def handle_info({Linku.Notebook, %_event{line: line} = event}, socket) do
+    send_update(LinkuWeb.RenkuComponent, id: line.renku_id, event: event)
     {:noreply, stream_new_log(socket, event)}
   end
 

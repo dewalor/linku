@@ -12,10 +12,10 @@ defmodule Linku.ActivityLog do
   alias Linku.ActivityLog.Entry
   alias Linku.{Repo, Scope, Notebook}
 
-  def log(%Scope{} = scope, %Notebook.Todo{} = todo, %{} = attrs) do
-    id = if todo.__meta__.state == :deleted, do: nil, else: todo.id
+  def log(%Scope{} = scope, %Notebook.Line{} = line, %{} = attrs) do
+    id = if line.__meta__.state == :deleted, do: nil, else: line.id
 
-    %Entry{todo_id: id, renku_id: todo.renku_id, user_id: scope.current_user_id}
+    %Entry{line_id: id, renku_id: line.renku_id, user_id: scope.current_user_id}
     |> put_performer(scope)
     |> Entry.changeset(attrs)
     |> Repo.insert!()

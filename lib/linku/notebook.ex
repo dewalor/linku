@@ -6,13 +6,13 @@ defmodule Linku.Notebook do
   import Ecto.Query, warn: false
   alias Linku.{Repo, Scope, Events}
 
-  alias Linku.Notebook.{Renku, Todo}
+  alias Linku.Notebook.{Renku, Line}
   alias Linku.ActivityLog
 
-  @max_todos 1000
+  @max_lines 1000
 
   @doc """
-  Subscribers the given scope to the todo pubsub.
+  Subscribers the given scope to the line pubsub.
 
   For logged in users, this will be a topic scoped only to the logged in user.
   If the system is extended to allow shared renkus, the topic subscription could
@@ -22,6 +22,14 @@ defmodule Linku.Notebook do
     Phoenix.PubSub.subscribe(Linku.PubSub, topic(scope))
   end
 
+  @spec update_renku_position(
+          %Linku.Scope{
+            :current_user => atom | %{:id => any, optional(any) => any},
+            optional(any) => any
+          },
+          %Linku.Notebook.Renku{:id => integer, optional(any) => any},
+          integer
+        ) :: :ok | {:error, any}
   @doc """
   Reorders a renku in the current users board.
 
@@ -53,27 +61,27 @@ defmodule Linku.Notebook do
   end
 
   @doc """
-  Updates the position of a todo in the renku it belongs to.
+  Updates the position of a line in the renku it belongs to.
 
-  Broadcasts %Events.TodoRepositioned{} on the scoped topic.
+  Broadcasts %Events.LineRepositioned{} on the scoped topic.
   """
-  def update_todo_position(%Scope{} = scope, %Todo{} = todo, new_index) do
+  def update_line_position(%Scope{} = scope, %Line{} = line, new_index) do
     Ecto.Multi.new()
-    |> multi_reposition(:new, todo, {Renku, todo.renku_id}, new_index, renku_id: todo.renku_id)
+    |> multi_reposition(:new, line, {Renku, line.renku_id}, new_index, renku_id: line.renku_id)
     |> Repo.transaction()
     |> case do
       {:ok, _} ->
-        new_todo = %Todo{todo | position: new_index}
+        new_line = %Line{line | position: new_index}
 
         log =
-          ActivityLog.log(scope, todo, %{
-            action: "todo_position_updated",
-            subject_text: todo.title,
-            before_text: todo.position,
+          ActivityLog.log(scope, line, %{
+            action: "line_position_updated",
+            subject_text: line.title,
+            before_text: line.position,
             after_text: new_index
           })
 
-        broadcast(scope, %Events.TodoRepositioned{todo: new_todo, log: log})
+        broadcast(scope, %Events.LineRepositioned{line: new_line, log: log})
 
         :ok
 
@@ -82,54 +90,54 @@ defmodule Linku.Notebook do
     end
   end
 
-  def change_todo(todo_or_changeset, attrs \\ %{}) do
-    Todo.changeset(todo_or_changeset, attrs)
+  def change_line(line_or_changeset, attrs \\ %{}) do
+    Line.changeset(line_or_changeset, attrs)
   end
 
   @doc """
-  Moves a todo from one renku to another.
+  Moves a line from one renku to another.
 
-  Broadcasts %Events.TodoDeleted{} on the scoped topic for the old renku.
-  Broadcasts %Events.TodoRepositioned{} on the scoped topic for the new renku.
+  Broadcasts %Events.LineDeleted{} on the scoped topic for the old renku.
+  Broadcasts %Events.LineRepositioned{} on the scoped topic for the new renku.
   """
-  def move_todo_to_renku(%Scope{} = scope, %Todo{} = todo, %Renku{} = renku, at_index) do
+  def move_line_to_renku(%Scope{} = scope, %Line{} = line, %Renku{} = renku, at_index) do
     Ecto.Multi.new()
-    |> Repo.multi_transaction_lock(:old_renku, {Renku, todo.renku_id})
+    |> Repo.multi_transaction_lock(:old_renku, {Renku, line.renku_id})
     |> Repo.multi_transaction_lock(:new_renku, renku)
     |> multi_update_all(:dec_positions, fn _ ->
-      from(t in Todo,
-        where: t.renku_id == ^todo.renku_id,
+      from(t in Line,
+        where: t.renku_id == ^line.renku_id,
         where:
-          t.position > subquery(from og in Todo, where: og.id == ^todo.id, select: og.position),
+          t.position > subquery(from og in Line, where: og.id == ^line.id, select: og.position),
         update: [inc: [position: -1]]
       )
     end)
     |> Ecto.Multi.run(:pos_at_end, fn repo, _changes ->
-      position = repo.one(from t in Todo, where: t.renku_id == ^renku.id, select: count(t.id))
+      position = repo.one(from t in Line, where: t.renku_id == ^renku.id, select: count(t.id))
       {:ok, position}
     end)
     |> multi_update_all(:move_to_renku, fn %{pos_at_end: pos_at_end} ->
-      from(t in Todo,
-        where: t.id == ^todo.id,
+      from(t in Line,
+        where: t.id == ^line.id,
         update: [set: [renku_id: ^renku.id, position: ^pos_at_end]]
       )
     end)
-    |> multi_reposition(:new, todo, renku, at_index, renku_id: renku.id)
+    |> multi_reposition(:new, line, renku, at_index, renku_id: renku.id)
     |> Repo.transaction()
     |> case do
       {:ok, _} ->
-        new_todo = %Todo{todo | renku: renku, renku_id: renku.id, position: at_index}
+        new_line = %Line{line | renku: renku, renku_id: renku.id, position: at_index}
 
         log =
-          ActivityLog.log(scope, new_todo, %{
-            action: "todo_moved",
-            subject_text: new_todo.title,
-            before_text: todo.renku.title,
+          ActivityLog.log(scope, new_line, %{
+            action: "line_moved",
+            subject_text: new_line.title,
+            before_text: line.renku.title,
             after_text: renku.title
           })
 
-        broadcast(scope, %Events.TodoDeleted{todo: todo})
-        broadcast(scope, %Events.TodoRepositioned{todo: new_todo, log: log})
+        broadcast(scope, %Events.LineDeleted{line: line})
+        broadcast(scope, %Events.LineRepositioned{line: new_line, log: log})
 
         :ok
 
@@ -139,28 +147,28 @@ defmodule Linku.Notebook do
   end
 
   @doc """
-  Deletes a todo for the current scope.
+  Deletes a line for the current scope.
 
-  Broadcasts %Events.TodoDeleted{} on the scoped topic when successful.
+  Broadcasts %Events.LineDeleted{} on the scoped topic when successful.
   """
-  def delete_todo(%Scope{} = scope, %Todo{} = todo) do
+  def delete_line(%Scope{} = scope, %Line{} = line) do
     Ecto.Multi.new()
-    |> Repo.multi_transaction_lock(:renku, {Renku, todo.renku_id})
-    |> multi_decrement_positions(:dec_rest_in_renku, todo, renku_id: todo.renku_id)
-    |> Ecto.Multi.delete(:todo, todo)
+    |> Repo.multi_transaction_lock(:renku, {Renku, line.renku_id})
+    |> multi_decrement_positions(:dec_rest_in_renku, line, renku_id: line.renku_id)
+    |> Ecto.Multi.delete(:line, line)
     |> Repo.transaction()
     |> case do
-      {:ok, %{todo: todo}} ->
+      {:ok, %{line: line}} ->
         log =
-          ActivityLog.log(scope, todo, %{
-            action: "todo_deleted",
-            subject_text: todo.title,
-            after_text: todo.renku.title
+          ActivityLog.log(scope, line, %{
+            action: "line_deleted",
+            subject_text: line.title,
+            after_text: line.renku.title
           })
 
-        broadcast(scope, %Events.TodoDeleted{todo: todo, log: log})
+        broadcast(scope, %Events.LineDeleted{line: line, log: log})
 
-        {:ok, todo}
+        {:ok, line}
 
       {:error, _failed_op, failed_val, _changes_so_far} ->
         {:error, failed_val}
@@ -168,11 +176,11 @@ defmodule Linku.Notebook do
   end
 
   @doc """
-  List todos for the current scope.
+  List lines for the current scope.
   """
-  def list_todos(%Scope{} = scope, limit) do
+  def list_lines(%Scope{} = scope, limit) do
     Repo.all(
-      from(t in Todo,
+      from(t in Line,
         where: t.user_id == ^scope.current_user.id,
         limit: ^limit,
         order_by: [asc: :position]
@@ -181,63 +189,63 @@ defmodule Linku.Notebook do
   end
 
   @doc """
-  Toggles a todo status for the current scope.
+  Toggles a line status for the current scope.
 
-  Broadcasts %Events.TodoToggled{} on the scoped topic when successful.
+  Broadcasts %Events.LineToggled{} on the scoped topic when successful.
   """
-  def toggle_complete(%Scope{} = scope, %Todo{} = todo) do
+  def toggle_complete(%Scope{} = scope, %Line{} = line) do
     new_status =
-      case todo.status do
+      case line.status do
         :completed -> :started
         :started -> :completed
       end
 
-    query = from(t in Todo, where: t.id == ^todo.id and t.user_id == ^scope.current_user.id)
+    query = from(t in Line, where: t.id == ^line.id and t.user_id == ^scope.current_user.id)
     {1, _} = Repo.update_all(query, set: [status: new_status])
-    new_todo = %Todo{todo | status: new_status}
+    new_line = %Line{line | status: new_status}
 
     log =
-      ActivityLog.log(scope, new_todo, %{
-        action: "todo_toggled",
-        subject_text: todo.title,
-        before_text: todo.status,
+      ActivityLog.log(scope, new_line, %{
+        action: "line_toggled",
+        subject_text: line.title,
+        before_text: line.status,
         after_text: new_status
       })
 
-    broadcast(scope, %Events.TodoToggled{todo: new_todo, log: log})
+    broadcast(scope, %Events.LineToggled{line: new_line, log: log})
 
-    {:ok, new_todo}
+    {:ok, new_line}
   end
 
-  def get_todo!(%Scope{} = scope, id) do
-    from(t in Todo, where: t.id == ^id and t.user_id == ^scope.current_user.id)
+  def get_line!(%Scope{} = scope, id) do
+    from(t in Line, where: t.id == ^id and t.user_id == ^scope.current_user.id)
     |> Repo.one!()
     |> Repo.preload(:renku)
   end
 
   @doc """
-  Updates a todo for the current scope.
+  Updates a line for the current scope.
 
-  Broadcasts %Events.TodoUpdated{} on the scoped topic when successful.
+  Broadcasts %Events.LineUpdated{} on the scoped topic when successful.
   """
-  def update_todo(%Scope{} = scope, %Todo{} = todo, params) do
-    todo
-    |> Todo.changeset(params)
+  def update_line(%Scope{} = scope, %Line{} = line, params) do
+    line
+    |> Line.changeset(params)
     |> Repo.update()
     |> case do
-      {:ok, new_todo} ->
+      {:ok, new_line} ->
         log =
-          if todo.title != new_todo.title do
-            ActivityLog.log(scope, new_todo, %{
-              action: "todo_updated",
-              subject_text: todo.title,
-              after_text: new_todo.title
+          if line.title != new_line.title do
+            ActivityLog.log(scope, new_line, %{
+              action: "line_updated",
+              subject_text: line.title,
+              after_text: new_line.title
             })
           end
 
-        broadcast(scope, %Events.TodoUpdated{todo: new_todo, log: log})
+        broadcast(scope, %Events.LineUpdated{line: new_line, log: log})
 
-        {:ok, new_todo}
+        {:ok, new_line}
 
       other ->
         other
@@ -245,12 +253,12 @@ defmodule Linku.Notebook do
   end
 
   @doc """
-  Creates a todo for the current scope.
+  Creates a line for the current scope.
 
-  Broadcasts %Events.TodoAdded{} on the scoped topic when successful.
+  Broadcasts %Events.LineAdded{} on the scoped topic when successful.
   """
-  def create_todo(%Scope{} = scope, %Renku{} = renku, params) do
-    todo = %Todo{
+  def create_line(%Scope{} = scope, %Renku{} = renku, params) do
+    line = %Line{
       user_id: scope.current_user.id,
       status: :started,
       renku_id: renku.id
@@ -259,28 +267,28 @@ defmodule Linku.Notebook do
     Ecto.Multi.new()
     |> Repo.multi_transaction_lock(:renku, renku)
     |> Ecto.Multi.run(:position, fn repo, _changes ->
-      position = repo.one(from t in Todo, where: t.renku_id == ^renku.id, select: count(t.id))
+      position = repo.one(from t in Line, where: t.renku_id == ^renku.id, select: count(t.id))
 
       {:ok, position}
     end)
-    |> Ecto.Multi.insert(:todo, fn %{position: position} ->
-      Todo.changeset(%Todo{todo | position: position}, params)
+    |> Ecto.Multi.insert(:line, fn %{position: position} ->
+      Line.changeset(%Line{line | position: position}, params)
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{todo: todo}} ->
+      {:ok, %{line: line}} ->
         log =
-          ActivityLog.log(scope, todo, %{
-            action: "todo_created",
-            subject_text: todo.title,
+          ActivityLog.log(scope, line, %{
+            action: "line_created",
+            subject_text: line.title,
             after_text: renku.title
           })
 
-        broadcast(scope, %Events.TodoAdded{todo: todo, log: log})
+        broadcast(scope, %Events.LineAdded{line: line, log: log})
 
-        {:ok, todo}
+        {:ok, line}
 
-      {:error, :todo, changeset, _changes_so_far} ->
+      {:error, :line, changeset, _changes_so_far} ->
         {:error, changeset}
     end
   end
@@ -296,10 +304,10 @@ defmodule Linku.Notebook do
     )
     |> Repo.all()
     |> Repo.preload(
-      todos:
-        from(t in Todo,
+      lines:
+        from(t in Line,
           where: t.user_id == ^scope.current_user.id,
-          limit: @max_todos,
+          limit: @max_lines,
           order_by: [asc: t.position]
         )
     )
@@ -316,7 +324,7 @@ defmodule Linku.Notebook do
     |> preload()
   end
 
-  defp preload(resource), do: Repo.preload(resource, [:todos])
+  defp preload(resource), do: Repo.preload(resource, [:lines])
 
   @doc """
   Creates a renku for the current scope.
@@ -338,7 +346,7 @@ defmodule Linku.Notebook do
     |> Repo.transaction()
     |> case do
       {:ok, %{renku: renku}} ->
-        renku = Repo.preload(renku, :todos)
+        renku = Repo.preload(renku, :lines)
 
         log =
           ActivityLog.log(scope, renku, %{
@@ -433,7 +441,7 @@ defmodule Linku.Notebook do
     Phoenix.PubSub.broadcast(Linku.PubSub, topic(scope), {__MODULE__, event})
   end
 
-  defp topic(%Scope{} = scope), do: "todos:#{scope.current_user.id}"
+  defp topic(%Scope{} = scope), do: "lines:#{scope.current_user.id}"
 
   defp multi_reposition(%Ecto.Multi{} = multi, name, %type{} = struct, lock, new_idx, where_query)
       when is_integer(new_idx) do

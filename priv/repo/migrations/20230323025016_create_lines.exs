@@ -1,8 +1,8 @@
-defmodule Linku.Repo.Migrations.CreateTodos do
+defmodule Linku.Repo.Migrations.CreateLines do
   use Ecto.Migration
 
   def change do
-    create table(:todos) do
+    create table(:lines) do
       add :title, :string
       add :status, :string
       add :position, :integer, null: false
@@ -12,6 +12,6 @@ defmodule Linku.Repo.Migrations.CreateTodos do
       timestamps()
     end
 
-    create index(:todos, [:renku_id])
+    create index(:lines, [:renku_id])
   end
 end

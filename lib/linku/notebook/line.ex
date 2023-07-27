@@ -1,8 +1,8 @@
-defmodule Linku.Notebook.Todo do
+defmodule Linku.Notebook.Line do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "todos" do
+  schema "lines" do
     field :status, Ecto.Enum, values: [:started, :completed], default: :started
     field :title, :string
     field :position, :integer
@@ -14,8 +14,8 @@ defmodule Linku.Notebook.Todo do
   end
 
   @doc false
-  def changeset(todo, attrs) do
-    todo
+  def changeset(line, attrs) do
+    line
     |> cast(attrs, [:id, :title, :status])
     |> validate_required([:title])
   end

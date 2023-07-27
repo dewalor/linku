@@ -25,6 +25,10 @@ defmodule LinkuWeb.Router do
       live "/", HomeLive, :dashboard
       live "/renkus/new", HomeLive, :new_renku
       live "/renkus/:id/edit", HomeLive, :edit_renku
+
+      live "/invitations", InvitationLive.Index, :index
+      live "/invitations/new", InvitationLive.Index, :new
+      live "/invitations/:id", InvitationLive.Show, :show
     end
   end
 

@@ -10,32 +10,32 @@ defmodule Linku.Events do
     defstruct renku: nil, log: nil
   end
 
-  defmodule TodoAdded do
-    defstruct todo: nil, log: nil
+  defmodule LineAdded do
+    defstruct line: nil, log: nil
   end
 
-  defmodule TodoUpdated do
-    defstruct todo: nil, log: nil
+  defmodule LineUpdated do
+    defstruct line: nil, log: nil
   end
 
-  defmodule TodoDeleted do
-    defstruct todo: nil, log: nil
+  defmodule LineDeleted do
+    defstruct line: nil, log: nil
   end
 
-  defmodule TodoRepositioned do
-    defstruct todo: nil, log: nil
+  defmodule LineRepositioned do
+    defstruct line: nil, log: nil
   end
 
-  defmodule TodoMoved do
-    defstruct todo: nil, from_renku_id: nil, to_renku_id: nil, log: nil
+  defmodule LineMoved do
+    defstruct line: nil, from_renku_id: nil, to_renku_id: nil, log: nil
   end
 
   defmodule RenkuRepositioned do
     defstruct renku: nil, log: nil
   end
 
-  defmodule TodoToggled do
-    defstruct todo: nil, log: nil
+  defmodule LineToggled do
+    defstruct line: nil, log: nil
   end
 
   defmodule RenkuDeleted do

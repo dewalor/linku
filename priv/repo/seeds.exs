@@ -41,7 +41,7 @@ scope = Scope.for_user(user)
   "Learn to play a new instrument",
 ]
 |> Enum.each(fn title ->
-  {:ok, _} = Notebook.create_todo(scope, personal, %{title: title})
+  {:ok, _} = Notebook.create_line(scope, personal, %{title: title})
 end)
 
 # Home
@@ -78,7 +78,7 @@ end)
   "Organize office or workspace"
 ]
 |> Enum.each(fn title ->
-  {:ok, _} = Notebook.create_todo(scope, home, %{title: title})
+  {:ok, _} = Notebook.create_line(scope, home, %{title: title})
 end)
 
 # Social/Professional
@@ -96,5 +96,5 @@ end)
   "Host a game night"
 ]
 |> Enum.each(fn title ->
-  {:ok, _} = Notebook.create_todo(scope, social, %{title: title})
+  {:ok, _} = Notebook.create_line(scope, social, %{title: title})
 end)

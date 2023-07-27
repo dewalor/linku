@@ -1,0 +1,42 @@
+<.header>
+  Listing Invitations
+  <:actions>
+    <.link patch={~p"/invitations/new"}>
+      <.button>New Invitation</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="invitations"
+  rows={@streams.invitations}
+  row_click={fn {_id, invitation} -> JS.navigate(~p"/invitations/#{invitation}") end}
+>
+  <:col :let={invitation} label="id"><%= invitation.id %></:col>
+  <:col :let={invitation} label="invitee"><%= invitation.invitee_email %></:col>
+  <:action :let={{_id, invitation}}>
+    <div class="sr-only">
+      <.link navigate={~p"/invitations/#{invitation}"}>Show</.link>
+    </div>
+<!--    <.link patch={~p"/invitations/#{invitation}/edit"}>Edit</.link> -->
+  </:action>
+  <:action :let={{id, invitation}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: invitation.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="invitation-modal" show on_cancel={JS.patch(~p"/invitations")}>
+  <.live_component
+    module={LinkuWeb.InvitationLive.FormComponent}
+    id={@invitation.id || :new}
+    title={@page_title}
+    action={@live_action}
+    invitation={@invitation}
+    patch={~p"/invitations"}
+  />
+</.modal>

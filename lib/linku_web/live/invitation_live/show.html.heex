@@ -1,0 +1,25 @@
+<.header>
+  Invitation <%= @invitation.id %>
+  <:subtitle>This is a invitation record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/invitations/#{@invitation}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit invitation</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+</.list>
+
+<.back navigate={~p"/invitations"}>Back to invitations</.back>
+
+<.modal :if={@live_action == :edit} id="invitation-modal" show on_cancel={JS.patch(~p"/invitations/#{@invitation}")}>
+  <.live_component
+    module={LinkuWeb.InvitationLive.FormComponent}
+    id={@invitation.id}
+    title={@page_title}
+    action={@live_action}
+    invitation={@invitation}
+    patch={~p"/invitations/#{@invitation}"}
+  />
+</.modal>

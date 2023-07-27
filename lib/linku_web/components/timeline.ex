@@ -68,7 +68,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "todo_position_updated"} = assigns) do
+  defp activity_entry(%{action: "line_position_updated"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -81,7 +81,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> repositioned todo "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> repositioned line "<%= @entry.subject_text %>"
               from <span class="font-medium text-gray-900"><%= @entry.before_text %></span>
               to <span class="font-medium text-gray-900"><%= @entry.after_text %></span>
             </p>
@@ -95,7 +95,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "todo_moved"} = assigns) do
+  defp activity_entry(%{action: "line_moved"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -108,7 +108,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> moved todo "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> moved line "<%= @entry.subject_text %>"
               from renku <span class="font-medium text-gray-900">"<%= @entry.before_text %>"</span>
               to renku <span class="font-medium text-gray-900">"<%= @entry.after_text %>"</span>
             </p>
@@ -122,7 +122,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "todo_deleted"} = assigns) do
+  defp activity_entry(%{action: "line_deleted"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -135,7 +135,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> deleted todo "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> deleted line "<%= @entry.subject_text %>"
             </p>
           </div>
           <div class="whitespace-nowrap text-right text-sm text-gray-500">
@@ -147,7 +147,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "todo_toggled"} = assigns) do
+  defp activity_entry(%{action: "line_toggled"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -169,7 +169,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> toggled todo "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> toggled line "<%= @entry.subject_text %>"
               from <span class="font-medium text-gray-900"><%= @entry.before_text %></span>
               to <span class="font-medium text-gray-900"><%= @entry.after_text %></span>
             </p>
@@ -183,7 +183,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "todo_updated"} = assigns) do
+  defp activity_entry(%{action: "line_updated"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -196,7 +196,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> updated todo "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> updated line "<%= @entry.subject_text %>"
               to <span class="font-medium text-gray-900">"<%= @entry.after_text %>"</span>
             </p>
           </div>
@@ -209,7 +209,7 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
-  defp activity_entry(%{action: "todo_created"} = assigns) do
+  defp activity_entry(%{action: "line_created"} = assigns) do
     ~H"""
     <div class="relative pb-32">
       <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -222,7 +222,7 @@ defmodule LinkuWeb.Timeline do
         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
           <div>
             <p class="text-sm text-gray-500">
-              <%= @entry.performer_text %> created new todo "<%= @entry.subject_text %>"
+              <%= @entry.performer_text %> created new line "<%= @entry.subject_text %>"
               on renku
               "<%= @entry.after_text %>"
             </p>

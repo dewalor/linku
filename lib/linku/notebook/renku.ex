@@ -6,7 +6,7 @@ defmodule Linku.Notebook.Renku do
     field :title, :string
     field :position, :integer
 
-    has_many :todos, Linku.Notebook.Todo
+    has_many :lines, Linku.Notebook.Line
     belongs_to :user, Linku.Accounts.User
 
     timestamps()

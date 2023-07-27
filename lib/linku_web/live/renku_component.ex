@@ -2,21 +2,21 @@ defmodule LinkuWeb.RenkuComponent do
   use LinkuWeb, :live_component
 
   alias Linku.{Events, Notebook}
-  alias Linku.Notebook.Todo
+  alias Linku.Notebook.Line
 
   def render(assigns) do
     ~H"""
     <div>
       <div
-        id={"todos-#{@renku_id}"}
+        id={"lines-#{@renku_id}"}
         phx-update="stream"
         phx-hook="Sortable"
         class="grid grid-cols-1 gap-2"
-        data-group="todos"
+        data-group="lines"
         data-renku_id={@renku_id}
       >
         <div
-          :for={{id, form} <- @streams.todos}
+          :for={{id, form} <- @streams.lines}
           id={id}
           data-id={form.data.id}
           data-renku_id={form.data.renku_id}
@@ -57,7 +57,7 @@ defmodule LinkuWeb.RenkuComponent do
                   field={form[:title]}
                   border={false}
                   strike_through={form[:status].value == :completed}
-                  placeholder="New todo..."
+                  placeholder="New line..."
                   phx-mounted={!form.data.id && JS.focus()}
                   phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
                   phx-key="escape"
@@ -83,141 +83,141 @@ defmodule LinkuWeb.RenkuComponent do
         phx-click={JS.push("new", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
         class="mt-4"
       >
-        add todo
+        add line
       </.button>
       <.button phx-click={JS.push("reset", target: @myself)} class="mt-4">reset</.button>
     </div>
     """
   end
 
-  def update(%{event: %Events.TodoToggled{todo: todo}}, socket) do
-    {:ok, stream_insert(socket, :todos, to_change_form(todo, %{}))}
+  def update(%{event: %Events.LineToggled{line: line}}, socket) do
+    {:ok, stream_insert(socket, :lines, to_change_form(line, %{}))}
   end
 
-  def update(%{event: %Events.TodoAdded{todo: todo}}, socket) do
-    {:ok, stream_insert(socket, :todos, to_change_form(todo, %{}))}
+  def update(%{event: %Events.LineAdded{line: line}}, socket) do
+    {:ok, stream_insert(socket, :lines, to_change_form(line, %{}))}
   end
 
-  def update(%{event: %Events.TodoUpdated{todo: todo}}, socket) do
-    {:ok, stream_insert(socket, :todos, to_change_form(todo, %{}))}
+  def update(%{event: %Events.LineUpdated{line: line}}, socket) do
+    {:ok, stream_insert(socket, :lines, to_change_form(line, %{}))}
   end
 
-  def update(%{event: %Events.TodoRepositioned{todo: todo}}, socket) do
-    {:ok, stream_insert(socket, :todos, to_change_form(todo, %{}), at: todo.position)}
+  def update(%{event: %Events.LineRepositioned{line: line}}, socket) do
+    {:ok, stream_insert(socket, :lines, to_change_form(line, %{}), at: line.position)}
   end
 
-  def update(%{event: %Events.TodoDeleted{todo: todo}}, socket) do
-    {:ok, stream_delete(socket, :todos, to_change_form(todo, %{}))}
+  def update(%{event: %Events.LineDeleted{line: line}}, socket) do
+    {:ok, stream_delete(socket, :lines, to_change_form(line, %{}))}
   end
 
   def update(%{renku: renku} = assigns, socket) do
-    todo_forms = Enum.map(renku.todos, &to_change_form(&1, %{}))
+    line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
 
     {:ok,
      socket
      |> assign(renku_id: renku.id, scope: assigns.scope)
-     |> stream(:todos, todo_forms)}
+     |> stream(:lines, line_forms)}
   end
 
-  def handle_event("validate", %{"todo" => todo_params} = params, socket) do
-    todo = %Todo{id: params["id"], renku_id: socket.assigns.renku_id}
+  def handle_event("validate", %{"line" => line_params} = params, socket) do
+    line = %Line{id: params["id"], renku_id: socket.assigns.renku_id}
 
-    {:noreply, stream_insert(socket, :todos, to_change_form(todo, todo_params, :validate))}
+    {:noreply, stream_insert(socket, :lines, to_change_form(line, line_params, :validate))}
   end
 
-  def handle_event("save", %{"id" => id, "todo" => params}, socket) do
-    todo = Notebook.get_todo!(socket.assigns.scope, id)
+  def handle_event("save", %{"id" => id, "line" => params}, socket) do
+    line = Notebook.get_line!(socket.assigns.scope, id)
 
-    case Notebook.update_todo(socket.assigns.scope, todo, params) do
-      {:ok, updated_todo} ->
-        {:noreply, stream_insert(socket, :todos, to_change_form(updated_todo, %{}))}
+    case Notebook.update_line(socket.assigns.scope, line, params) do
+      {:ok, updated_line} ->
+        {:noreply, stream_insert(socket, :lines, to_change_form(updated_line, %{}))}
 
       {:error, changeset} ->
-        {:noreply, stream_insert(socket, :todos, to_change_form(changeset, %{}, :insert))}
+        {:noreply, stream_insert(socket, :lines, to_change_form(changeset, %{}, :insert))}
     end
   end
 
-  def handle_event("save", %{"todo" => params}, socket) do
+  def handle_event("save", %{"line" => params}, socket) do
     renku = Notebook.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
 
-    case Notebook.create_todo(socket.assigns.scope, renku, params) do
-      {:ok, new_todo} ->
-        empty_form = to_change_form(build_todo(socket.assigns.renku_id), %{})
+    case Notebook.create_line(socket.assigns.scope, renku, params) do
+      {:ok, new_line} ->
+        empty_form = to_change_form(build_line(socket.assigns.renku_id), %{})
 
         {:noreply,
          socket
-         |> stream_insert(:todos, to_change_form(new_todo, %{}))
-         |> stream_delete(:todos, empty_form)
-         |> stream_insert(:todos, empty_form)}
+         |> stream_insert(:lines, to_change_form(new_line, %{}))
+         |> stream_delete(:lines, empty_form)
+         |> stream_insert(:lines, empty_form)}
 
       {:error, changeset} ->
-        {:noreply, stream_insert(socket, :todos, to_change_form(changeset, params, :insert))}
+        {:noreply, stream_insert(socket, :lines, to_change_form(changeset, params, :insert))}
     end
   end
 
   def handle_event("delete", %{"id" => id}, socket) do
-    todo = Notebook.get_todo!(socket.assigns.scope, id)
-    {:ok, _} = Notebook.delete_todo(socket.assigns.scope, todo)
+    line = Notebook.get_line!(socket.assigns.scope, id)
+    {:ok, _} = Notebook.delete_line(socket.assigns.scope, line)
 
     {:noreply, socket}
   end
 
   def handle_event("toggle_complete", %{"id" => id}, socket) do
-    todo = Notebook.get_todo!(socket.assigns.scope, id)
-    {:ok, _todo} = Notebook.toggle_complete(socket.assigns.scope, todo)
+    line = Notebook.get_line!(socket.assigns.scope, id)
+    {:ok, _line} = Notebook.toggle_complete(socket.assigns.scope, line)
 
     {:noreply, socket}
   end
 
   def handle_event("new", %{"at" => at}, socket) do
-    todo = build_todo(socket.assigns.renku_id)
-    {:noreply, stream_insert(socket, :todos, to_change_form(todo, %{}), at: at)}
+    line = build_line(socket.assigns.renku_id)
+    {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
   end
 
   def handle_event("reset", _, socket) do
-    todo = build_todo(socket.assigns.renku_id)
-    {:noreply, stream(socket, :todos, [to_change_form(todo, %{})], reset: true)}
+    line = build_line(socket.assigns.renku_id)
+    {:noreply, stream(socket, :lines, [to_change_form(line, %{})], reset: true)}
   end
 
   def handle_event("reposition", %{"id" => id, "new" => new_idx, "old" => _} = params, socket) do
     case params do
       %{"renku_id" => old_renku_id, "to" => %{"renku_id" => old_renku_id}} ->
-        todo = Notebook.get_todo!(socket.assigns.scope, id)
-        Notebook.update_todo_position(socket.assigns.scope, todo, new_idx)
+        line = Notebook.get_line!(socket.assigns.scope, id)
+        Notebook.update_line_position(socket.assigns.scope, line, new_idx)
         {:noreply, socket}
 
       %{"renku_id" => _old_renku_id, "to" => %{"renku_id" => new_renku_id}} ->
-        todo = Notebook.get_todo!(socket.assigns.scope, id)
+        line = Notebook.get_line!(socket.assigns.scope, id)
         renku = Notebook.get_renku!(socket.assigns.scope, new_renku_id)
-        Notebook.move_todo_to_renku(socket.assigns.scope, todo, renku, new_idx)
+        Notebook.move_line_to_renku(socket.assigns.scope, line, renku, new_idx)
         {:noreply, socket}
     end
   end
 
   def handle_event("discard", _params, socket) do
-    todo = build_todo(socket.assigns.renku_id)
-    {:noreply, stream_delete(socket, :todos, to_change_form(todo, %{}))}
+    line = build_line(socket.assigns.renku_id)
+    {:noreply, stream_delete(socket, :lines, to_change_form(line, %{}))}
   end
 
   def handle_event("restore_if_unsaved", %{"value" => val} = params, socket) do
     id = params["id"]
-    todo = Notebook.get_todo!(socket.assigns.scope, id)
+    line = Notebook.get_line!(socket.assigns.scope, id)
 
-    if todo.title == val do
+    if line.title == val do
       {:noreply, socket}
     else
-      {:noreply, stream_insert(socket, :todos, to_change_form(todo, %{}))}
+      {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}))}
     end
   end
 
-  defp to_change_form(todo_or_changeset, params, action \\ nil) do
+  defp to_change_form(line_or_changeset, params, action \\ nil) do
     changeset =
-      todo_or_changeset
-      |> Notebook.change_todo(params)
+      line_or_changeset
+      |> Notebook.change_line(params)
       |> Map.put(:action, action)
 
-    to_form(changeset, as: "todo", id: "form-#{changeset.data.renku_id}-#{changeset.data.id}")
+    to_form(changeset, as: "line", id: "form-#{changeset.data.renku_id}-#{changeset.data.id}")
   end
 
-  defp build_todo(renku_id), do: %Todo{renku_id: renku_id}
+  defp build_line(renku_id), do: %Line{renku_id: renku_id}
 end
