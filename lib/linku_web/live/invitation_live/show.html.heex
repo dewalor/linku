@@ -2,8 +2,8 @@
   Invitation <%= @invitation.id %>
   <:subtitle>This is a invitation record from your database.</:subtitle>
   <:actions>
-    <.link patch={~p"/invitations/#{@invitation}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit invitation</.button>
+    <.link patch={~p"/invitations/#{@invitation}"} phx-click={JS.push_focus()}>
+      <.button>Show invitation</.button>
     </.link>
   </:actions>
 </.header>
