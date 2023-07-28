@@ -1,4 +1,4 @@
-defmodule Linku.Notebook.Renku do
+defmodule Linku.Notebooks.Renku do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -6,7 +6,7 @@ defmodule Linku.Notebook.Renku do
     field :title, :string
     field :position, :integer
 
-    has_many :lines, Linku.Notebook.Line
+    has_many :lines, Linku.Notebooks.Line
     belongs_to :user, Linku.Accounts.User
 
     timestamps()

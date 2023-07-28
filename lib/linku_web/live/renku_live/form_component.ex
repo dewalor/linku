@@ -1,7 +1,7 @@
 defmodule LinkuWeb.RenkuLive.FormComponent do
   use LinkuWeb, :live_component
 
-  alias Linku.Notebook
+  alias Linku.Notebooks
 
   @impl true
   def render(assigns) do
@@ -30,7 +30,7 @@ defmodule LinkuWeb.RenkuLive.FormComponent do
 
   @impl true
   def update(%{renku: renku} = assigns, socket) do
-    changeset = Notebook.change_renku(renku)
+    changeset = Notebooks.change_renku(renku)
 
     {:ok,
      socket
@@ -42,7 +42,7 @@ defmodule LinkuWeb.RenkuLive.FormComponent do
   def handle_event("validate", %{"renku" => renku_params}, socket) do
     changeset =
       socket.assigns.renku
-      |> Notebook.change_renku(renku_params)
+      |> Notebooks.change_renku(renku_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign_form(socket, changeset)}
@@ -53,7 +53,7 @@ defmodule LinkuWeb.RenkuLive.FormComponent do
   end
 
   defp save_renku(socket, :edit_renku, renku_params) do
-    case Notebook.update_renku(socket.assigns.scope, socket.assigns.renku, renku_params) do
+    case Notebooks.update_renku(socket.assigns.scope, socket.assigns.renku, renku_params) do
       {:ok, _renku} ->
         {:noreply,
          socket
@@ -66,7 +66,7 @@ defmodule LinkuWeb.RenkuLive.FormComponent do
   end
 
   defp save_renku(socket, :new_renku, renku_params) do
-    case Notebook.create_renku(socket.assigns.scope, renku_params) do
+    case Notebooks.create_renku(socket.assigns.scope, renku_params) do
       {:ok, _renku} ->
         {:noreply,
          socket

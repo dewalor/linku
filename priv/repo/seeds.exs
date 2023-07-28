@@ -1,4 +1,4 @@
-alias Linku.{Accounts, Notebook, Scope}
+alias Linku.{Accounts, Notebooks, Scope}
 
 {:ok, user} =
   Accounts.register_user(%{
@@ -7,9 +7,9 @@ alias Linku.{Accounts, Notebook, Scope}
   })
 
 scope = Scope.for_user(user)
-{:ok, home} = Notebook.create_renku(scope, %{title: "Home"})
-{:ok, personal} = Notebook.create_renku(scope, %{title: "Personal"})
-{:ok, social} = Notebook.create_renku(scope, %{title: "Social/Professional"})
+{:ok, home} = Notebooks.create_renku(scope, %{title: "Home"})
+{:ok, personal} = Notebooks.create_renku(scope, %{title: "Personal"})
+{:ok, social} = Notebooks.create_renku(scope, %{title: "Social/Professional"})
 
 # Personal
 [
@@ -41,7 +41,7 @@ scope = Scope.for_user(user)
   "Learn to play a new instrument",
 ]
 |> Enum.each(fn title ->
-  {:ok, _} = Notebook.create_line(scope, personal, %{title: title})
+  {:ok, _} = Notebooks.create_line(scope, personal, %{title: title})
 end)
 
 # Home
@@ -78,7 +78,7 @@ end)
   "Organize office or workspace"
 ]
 |> Enum.each(fn title ->
-  {:ok, _} = Notebook.create_line(scope, home, %{title: title})
+  {:ok, _} = Notebooks.create_line(scope, home, %{title: title})
 end)
 
 # Social/Professional
@@ -96,5 +96,5 @@ end)
   "Host a game night"
 ]
 |> Enum.each(fn title ->
-  {:ok, _} = Notebook.create_line(scope, social, %{title: title})
+  {:ok, _} = Notebooks.create_line(scope, social, %{title: title})
 end)

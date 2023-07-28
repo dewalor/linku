@@ -1,8 +1,8 @@
 defmodule LinkuWeb.RenkuComponent do
   use LinkuWeb, :live_component
 
-  alias Linku.{Events, Notebook}
-  alias Linku.Notebook.Line
+  alias Linku.{Events, Notebooks}
+  alias Linku.Notebooks.Line
 
   def render(assigns) do
     ~H"""
@@ -126,9 +126,9 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("save", %{"id" => id, "line" => params}, socket) do
-    line = Notebook.get_line!(socket.assigns.scope, id)
+    line = Notebooks.get_line!(socket.assigns.scope, id)
 
-    case Notebook.update_line(socket.assigns.scope, line, params) do
+    case Notebooks.update_line(socket.assigns.scope, line, params) do
       {:ok, updated_line} ->
         {:noreply, stream_insert(socket, :lines, to_change_form(updated_line, %{}))}
 
@@ -138,9 +138,9 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("save", %{"line" => params}, socket) do
-    renku = Notebook.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
+    renku = Notebooks.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
 
-    case Notebook.create_line(socket.assigns.scope, renku, params) do
+    case Notebooks.create_line(socket.assigns.scope, renku, params) do
       {:ok, new_line} ->
         empty_form = to_change_form(build_line(socket.assigns.renku_id), %{})
 
@@ -156,15 +156,15 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("delete", %{"id" => id}, socket) do
-    line = Notebook.get_line!(socket.assigns.scope, id)
-    {:ok, _} = Notebook.delete_line(socket.assigns.scope, line)
+    line = Notebooks.get_line!(socket.assigns.scope, id)
+    {:ok, _} = Notebooks.delete_line(socket.assigns.scope, line)
 
     {:noreply, socket}
   end
 
   def handle_event("toggle_complete", %{"id" => id}, socket) do
-    line = Notebook.get_line!(socket.assigns.scope, id)
-    {:ok, _line} = Notebook.toggle_complete(socket.assigns.scope, line)
+    line = Notebooks.get_line!(socket.assigns.scope, id)
+    {:ok, _line} = Notebooks.toggle_complete(socket.assigns.scope, line)
 
     {:noreply, socket}
   end
@@ -182,14 +182,14 @@ defmodule LinkuWeb.RenkuComponent do
   def handle_event("reposition", %{"id" => id, "new" => new_idx, "old" => _} = params, socket) do
     case params do
       %{"renku_id" => old_renku_id, "to" => %{"renku_id" => old_renku_id}} ->
-        line = Notebook.get_line!(socket.assigns.scope, id)
-        Notebook.update_line_position(socket.assigns.scope, line, new_idx)
+        line = Notebooks.get_line!(socket.assigns.scope, id)
+        Notebooks.update_line_position(socket.assigns.scope, line, new_idx)
         {:noreply, socket}
 
       %{"renku_id" => _old_renku_id, "to" => %{"renku_id" => new_renku_id}} ->
-        line = Notebook.get_line!(socket.assigns.scope, id)
-        renku = Notebook.get_renku!(socket.assigns.scope, new_renku_id)
-        Notebook.move_line_to_renku(socket.assigns.scope, line, renku, new_idx)
+        line = Notebooks.get_line!(socket.assigns.scope, id)
+        renku = Notebooks.get_renku!(socket.assigns.scope, new_renku_id)
+        Notebooks.move_line_to_renku(socket.assigns.scope, line, renku, new_idx)
         {:noreply, socket}
     end
   end
@@ -201,7 +201,7 @@ defmodule LinkuWeb.RenkuComponent do
 
   def handle_event("restore_if_unsaved", %{"value" => val} = params, socket) do
     id = params["id"]
-    line = Notebook.get_line!(socket.assigns.scope, id)
+    line = Notebooks.get_line!(socket.assigns.scope, id)
 
     if line.title == val do
       {:noreply, socket}
@@ -213,7 +213,7 @@ defmodule LinkuWeb.RenkuComponent do
   defp to_change_form(line_or_changeset, params, action \\ nil) do
     changeset =
       line_or_changeset
-      |> Notebook.change_line(params)
+      |> Notebooks.change_line(params)
       |> Map.put(:action, action)
 
     to_form(changeset, as: "line", id: "form-#{changeset.data.renku_id}-#{changeset.data.id}")

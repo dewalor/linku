@@ -1,7 +1,7 @@
 defmodule Linku.NotebookFixtures do
   @moduledoc """
   This module defines test helpers for creating
-  entities via the `Linku.Notebook` context.
+  entities via the `Linku.Notebooks` context.
   """
 
   @doc """
@@ -13,7 +13,7 @@ defmodule Linku.NotebookFixtures do
       |> Enum.into(%{
         title: "some title"
       })
-      |> Linku.Notebook.create_renku()
+      |> Linku.Notebooks.create_renku()
 
     renku
   end

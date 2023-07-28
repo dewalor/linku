@@ -7,7 +7,7 @@ defmodule Linku.Collaborations.Invitation do
     field :accepted_at, :utc_datetime_usec
 
     belongs_to :user, Linku.Accounts.User, foreign_key: :inviter_id
-    belongs_to :line, Linku.Notebook.Line
+    belongs_to :line, Linku.Notebooks.Line
     timestamps()
   end
 

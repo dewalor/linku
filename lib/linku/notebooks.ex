@@ -1,12 +1,12 @@
-defmodule Linku.Notebook do
+defmodule Linku.Notebooks do
   @moduledoc """
-  The Notebook context.
+  The Notebooks context.
   """
 
   import Ecto.Query, warn: false
   alias Linku.{Repo, Scope, Events}
 
-  alias Linku.Notebook.{Renku, Line}
+  alias Linku.Notebooks.{Renku, Line}
   alias Linku.ActivityLog
 
   @max_lines 1000
@@ -22,14 +22,6 @@ defmodule Linku.Notebook do
     Phoenix.PubSub.subscribe(Linku.PubSub, topic(scope))
   end
 
-  @spec update_renku_position(
-          %Linku.Scope{
-            :current_user => atom | %{:id => any, optional(any) => any},
-            optional(any) => any
-          },
-          %Linku.Notebook.Renku{:id => integer, optional(any) => any},
-          integer
-        ) :: :ok | {:error, any}
   @doc """
   Reorders a renku in the current users board.
 
