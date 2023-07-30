@@ -1,6 +1,7 @@
 defmodule LinkuWeb.RenkuComponent do
   use LinkuWeb, :live_component
 
+  alias Linku.Repo
   alias Linku.{Events, Notebooks}
   alias Linku.Notebooks.Line
 
@@ -64,6 +65,9 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
                 />
+                <.inputs_for :let={form_invitations} field={form[:invitations]}>
+                  <.input type="text" field={form_invitations[:email]} />
+                </.inputs_for>
               </div>
               <button
                 :if={form.data.id}
@@ -211,6 +215,7 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   defp to_change_form(line_or_changeset, params, action \\ nil) do
+    line_or_changeset = Repo.preload(line_or_changeset, :invitations)
     changeset =
       line_or_changeset
       |> Notebooks.change_line(params)

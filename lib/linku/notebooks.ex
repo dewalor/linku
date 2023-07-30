@@ -168,19 +168,6 @@ defmodule Linku.Notebooks do
   end
 
   @doc """
-  List lines for the current scope.
-  """
-  def list_lines(%Scope{} = scope, limit) do
-    Repo.all(
-      from(t in Line,
-        where: t.user_id == ^scope.current_user.id,
-        limit: ^limit,
-        order_by: [asc: :position]
-      )
-    )
-  end
-
-  @doc """
   Toggles a line status for the current scope.
 
   Broadcasts %Events.LineToggled{} on the scoped topic when successful.

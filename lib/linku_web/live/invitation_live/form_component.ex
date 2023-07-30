@@ -2,7 +2,8 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
   use LinkuWeb, :live_component
 
   alias Linku.Collaborations
-
+  alias Linku.Collaborations.Invitation
+  
   @impl true
   def render(assigns) do
     ~H"""
@@ -19,7 +20,7 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-
+      <.input field={@form[:email]} type="text" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Invitation</.button>
         </:actions>
@@ -35,6 +36,7 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign_invitation()
      |> assign_form(changeset)}
   end
 
@@ -80,6 +82,10 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
     end
+  end
+
+  defp assign_invitation(%{assigns: %{current_user: current_user}} = socket) do
+    assign(socket, :invitation, %Invitation{inviter_id: current_user.id})
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
