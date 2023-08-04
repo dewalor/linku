@@ -276,20 +276,21 @@ defmodule Linku.Notebooks do
   Returns the active renkus for the current scope.
   """
   def active_renkus(%Scope{} = scope, limit) do
-    from(l in Renku,
-      where: l.user_id == ^scope.current_user.id,
+    lines_query = from(l in Line,
+                    where: l.user_id == ^scope.current_user.id,
+                    limit: @max_lines,
+                    order_by: [asc: l.position]
+                  )
+
+    from(r in Renku,
+      where: r.user_id == ^scope.current_user.id,
       limit: ^limit,
       order_by: [asc: :position]
     )
     |> Repo.all()
     |> Repo.preload(
-      lines:
-        from(t in Line,
-          where: t.user_id == ^scope.current_user.id,
-          limit: @max_lines,
-          order_by: [asc: t.position]
-        )
-    )
+       lines: {lines_query, :invitations}
+     )
   end
 
   @doc """

@@ -2,6 +2,8 @@ defmodule Linku.Notebooks.Line do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Linku.Repo
+
   schema "lines" do
     field :status, Ecto.Enum, values: [:started, :completed], default: :started
     field :title, :string
@@ -17,7 +19,9 @@ defmodule Linku.Notebooks.Line do
   @doc false
   def changeset(line, attrs) do
     line
+    |> Repo.preload(:invitations)
     |> cast(attrs, [:id, :title, :status, :renku_id, :user_id])
+    |> cast_assoc(:invitations)
     |> validate_required([:title])
   end
 end
