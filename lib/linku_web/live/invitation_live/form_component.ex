@@ -3,14 +3,15 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
 
   alias Linku.Collaborations
   alias Linku.Collaborations.Invitation
-  
+
   @impl true
   def render(assigns) do
+    IO.inspect(assigns, label: "Form Component Render ASSIGNS:::")
+    IO.inspect(assigns.form.data.line_id, label: "ASSIGNS FORM DATA LINE_ID :::")
     ~H"""
     <div>
       <.header>
         <%= @title %>
-        <:subtitle>Use this form to manage invitation records in your database.</:subtitle>
       </.header>
 
       <.simple_form
@@ -20,7 +21,12 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-      <.input field={@form[:email]} type="text" />
+      <.input field={@form[:line_id]} type="hidden" value={@form.data.line_id}/>
+      <.input
+        field={@form[:invitee_email]}
+        type="text"
+        placeholder="Invitee Email"
+        />
         <:actions>
           <.button phx-disable-with="Saving...">Save Invitation</.button>
         </:actions>
@@ -31,17 +37,20 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
 
   @impl true
   def update(%{invitation: invitation} = assigns, socket) do
+    IO.inspect(assigns, label: "ASSIGNS in update")
+    IO.inspect(invitation, label: "INVITATION in UPDATE ASSIGNS???")
     changeset = Collaborations.change_invitation(invitation)
 
     {:ok,
      socket
      |> assign(assigns)
-     |> assign_invitation()
+  #   |> assign_invitation()
      |> assign_form(changeset)}
   end
 
   @impl true
   def handle_event("validate", %{"invitation" => invitation_params}, socket) do
+    IO.inspect(invitation_params, label: "INVITATION PARAMS in HANDLE EVENT!!!")
     changeset =
       socket.assigns.invitation
       |> Collaborations.change_invitation(invitation_params)
@@ -84,8 +93,8 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
     end
   end
 
-  defp assign_invitation(%{assigns: %{current_user: current_user}} = socket) do
-    assign(socket, :invitation, %Invitation{inviter_id: current_user.id})
+  defp assign_invitation(socket) do
+    assign(socket, :invitation, %Invitation{})
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do

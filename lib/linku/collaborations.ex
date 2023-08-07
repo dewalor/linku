@@ -99,6 +99,10 @@ defmodule Linku.Collaborations do
 
   """
   def change_invitation(%Invitation{} = invitation, attrs \\ %{}) do
-    Invitation.changeset(invitation, attrs)
+    case attrs do
+      %{"invitee_email" => invitee_email, "line_id" => line_id} -> Invitation.changeset(invitation, %{"invitee_email" => invitee_email, "line_id" => String.to_integer(line_id)})
+      _ -> Invitation.changeset(invitation, attrs)
+    end
+
   end
 end

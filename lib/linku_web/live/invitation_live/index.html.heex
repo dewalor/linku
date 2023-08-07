@@ -35,6 +35,7 @@
     module={LinkuWeb.InvitationLive.FormComponent}
     id={@invitation.id || :new}
     title={@page_title}
+    line_id={@line_id}
     action={@live_action}
     invitation={@invitation}
     patch={~p"/invitations"}

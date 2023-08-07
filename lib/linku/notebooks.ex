@@ -7,6 +7,7 @@ defmodule Linku.Notebooks do
   alias Linku.{Repo, Scope, Events}
 
   alias Linku.Notebooks.{Renku, Line}
+  alias Linku.Collaborations.Invitation
   alias Linku.ActivityLog
 
   @max_lines 1000
@@ -84,6 +85,10 @@ defmodule Linku.Notebooks do
 
   def change_line(line_or_changeset, attrs \\ %{}) do
     Line.changeset(line_or_changeset, attrs)
+  end
+
+  def change_invitation(invitation_or_changeset, attrs \\ %{}) do
+    Invitation.changeset(invitation_or_changeset, attrs)
   end
 
   @doc """

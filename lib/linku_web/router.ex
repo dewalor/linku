@@ -26,9 +26,9 @@ defmodule LinkuWeb.Router do
       live "/renkus/new", HomeLive, :new_renku
       live "/renkus/:id/edit", HomeLive, :edit_renku
 
-      live "/invitations", InvitationLive.Index, :index
-      live "/invitations/new", InvitationLive.Index, :new
-      live "/invitations/:id", InvitationLive.Show, :show
+      live "/lines/:id/invitations", InvitationLive.Index, :index
+      live "/lines/:id/invitations/new", InvitationLive.Index, :new
+      live "/lines/:id/invitations/:id", InvitationLive.Show, :show
     end
   end
 

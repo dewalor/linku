@@ -3,7 +3,6 @@ defmodule Linku.Repo.Migrations.CreateInvitations do
 
   def change do
     create table(:invitations) do
-      add :inviter_id, references(:users, on_delete: :nothing)
       add :invitee_email, :string
       add :line_id, references(:lines, on_delete: :nothing)
 
@@ -12,7 +11,6 @@ defmodule Linku.Repo.Migrations.CreateInvitations do
       timestamps()
     end
 
-    create index(:invitations, [:inviter_id])
     create index(:invitations, [:invitee_email])
     create index(:invitations, [:line_id])
   end

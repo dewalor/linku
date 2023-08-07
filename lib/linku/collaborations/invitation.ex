@@ -6,7 +6,6 @@ defmodule Linku.Collaborations.Invitation do
     field :invitee_email, :string
     field :accepted_at, :utc_datetime_usec
 
-    belongs_to :user, Linku.Accounts.User, foreign_key: :inviter_id
     belongs_to :line, Linku.Notebooks.Line
     timestamps()
   end
@@ -14,7 +13,7 @@ defmodule Linku.Collaborations.Invitation do
   @doc false
   def changeset(invitation, attrs) do
     invitation
-    |> cast(attrs, [:id, :invitee_email, :accepted_at, :inviter_id, :line_id])
-    |> validate_required([:invitee_email, :inviter_id, :line_id])
+    |> cast(attrs, [:id, :invitee_email, :accepted_at, :line_id])
+    |> validate_required([:invitee_email, :line_id])
   end
 end

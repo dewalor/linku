@@ -2,11 +2,9 @@ defmodule LinkuWeb.RenkuComponent do
   use LinkuWeb, :live_component
   import Ecto.Changeset
 
-  alias Linku.Repo
   alias Linku.{Events, Notebooks}
   alias Linku.Notebooks.Line
   alias Linku.Collaborations.Invitation
-  alias LinkuWeb.InvitationLive
 
   def render(assigns) do
   #   <.live_component
@@ -74,6 +72,12 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
                 />
+                <.link
+                  :if={form.data.id}
+                  patch={~p"/lines/#{form.data.id}/invitations/new"}
+                  alt="Edit list">
+                  <.icon name="hero-pencil-square" />
+                </.link>
                 <.inputs_for :let={form_invitations} field={form[:invitations]}>
                   <.input type="text"
                     field={form_invitations[:invitee_email]}
@@ -95,6 +99,12 @@ defmodule LinkuWeb.RenkuComponent do
               >
                 <.icon name="hero-x-mark" />
               </button>
+              <.button
+              phx-click={JS.push("invite", value: %{id: form.data.id, renku_id: @renku_id}, target: @myself)}
+              class="mt-4"
+            >
+              New Invitation
+            </.button>
             </div>
           </.simple_form>
         </div>
@@ -103,8 +113,9 @@ defmodule LinkuWeb.RenkuComponent do
         phx-click={JS.push("new", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
         class="mt-4"
       >
-        Add New Line
+        New Line
       </.button>
+
       <.button phx-click={JS.push("reset", target: @myself)} class="mt-4">reset</.button>
     </div>
     """
@@ -132,12 +143,14 @@ defmodule LinkuWeb.RenkuComponent do
 
   def update(%{renku: renku} = assigns, socket) do
     line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
-    invitations_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
+ #   invitations_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
+
     {:ok,
      socket
      |> assign(renku_id: renku.id, scope: assigns.scope)
      |> stream(:lines, line_forms)
-     |> stream(:invitations, invitations_forms)}
+  #   |> stream(:invitations, invitations_forms)
+    }
   end
 
   def handle_event("validate", %{"line" => line_params} = params, socket) do
@@ -192,8 +205,31 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("new", %{"at" => at}, socket) do
-    line = build_line(socket.assigns.renku_id)
-    {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
+     line = build_line(socket.assigns.renku_id)
+     IO.inspect(line, label: "NEW LINE")
+     {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
+  end
+
+  def handle_event("invite", %{"id" => line_id}, socket) do
+    # line = Notebooks.get_line!(socket.assigns.scope, line_id)
+    invitation = build_invitation(line_id)
+    # QUESTION: 1. What happens after stream_insert? 2. Look at where this is "at"
+    # ** (ArgumentError) schema Linku.Collaborations.Invitation does not have association or embed :invitations
+    # (elixir 1.14.3) lib/enum.ex:2468: Enum."-reduce/3-lists^foldl/2-0-"/3
+    # (linku 0.1.0) lib/linku_web/live/renku_component.ex:253: LinkuWeb.RenkuComponent.to_change_form/3
+    # (linku 0.1.0) lib/linku_web/live/renku_component.ex:210:
+
+    #TODO: add line to changeset before calling to_change_form?
+
+    IO.inspect(line_id, label: "LINE ID:::")
+
+
+    {:noreply, stream_insert(socket, :invitations, to_change_invitation_form(invitation, %{}))}
+   # This gives validation errors on invitations
+
+      #  line = Notebooks.get_line!(socket.assigns.scope, line_id)
+      #  |> Line.changeset(%{invitations: [%{line_id: line_id}]})
+#    {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: -1)}
   end
 
   def handle_event("reset", _, socket) do
@@ -233,16 +269,32 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   defp to_change_form(line_or_changeset, params, action \\ nil) do
-
+#    IO.inspect(line_or_changeset, label: "LINE OR CHANGESET")
+#    IO.inspect(params, label: "LINE PARAMS")
     changeset =
       line_or_changeset
-      |> Repo.preload(:invitations)
       |> Notebooks.change_line(params)
       |> cast_assoc(:invitations, with: &Linku.Collaborations.Invitation.changeset/2) #merge with data from params
       |> Map.put(:action, action)
 
+#    IO.inspect(changeset, label: "LINE CHANGESET")
     to_form(changeset, as: "line", id: "form-#{changeset.data.renku_id}-#{changeset.data.id}")
   end
 
+  defp to_change_invitation_form(invitation_or_changeset, params, action \\ nil) do
+#    IO.inspect(invitation_or_changeset, label: "INVITATION OR CHANGESET")
+#    IO.inspect(params, label: "INVITATION PARAMS")
+    changeset =
+      invitation_or_changeset
+      |> Notebooks.change_invitation(params)
+      |> Map.put(:action, action)
+
+#    IO.inspect(changeset, label: "INVITATION CHANGESET")
+    to_form(changeset, as: "invitation", id: "form-#{params[:renku_id]}-#{changeset.data.id}")
+  end
+
   defp build_line(renku_id), do: %Line{renku_id: renku_id}
+
+  defp build_invitation(line_id), do: %Invitation{line_id: line_id}
+
 end
