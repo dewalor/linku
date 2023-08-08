@@ -1,7 +1,6 @@
 defmodule LinkuWeb.InvitationLive.Index do
   use LinkuWeb, :live_view
 
-  alias Linku.Repo
   alias Linku.Collaborations
   alias Linku.Collaborations.Invitation
 
@@ -11,8 +10,7 @@ defmodule LinkuWeb.InvitationLive.Index do
   end
 
   @impl true
-  def handle_params(%{"id" => line_id} = params, uri, socket) do
-      IO.inspect(params, label: "PARAMS to be HANDLED")
+  def handle_params(%{"id" => line_id} = params, _uri, socket) do
       assign(socket, line_id: String.to_integer(line_id))
       {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
@@ -23,8 +21,7 @@ defmodule LinkuWeb.InvitationLive.Index do
     |> assign(:invitation, Collaborations.get_invitation!(id))
   end
 
-  defp apply_action(socket, :new, %{"id" => line_id} = params) do
-    IO.inspect(String.to_integer(line_id), label: "LINE ID action NEW @@@") #this is OK
+  defp apply_action(socket, :new, %{"id" => line_id} = _params) do
     socket
     |> assign(:page_title, "New Invitation")
     |> assign(:line_id, String.to_integer(line_id))

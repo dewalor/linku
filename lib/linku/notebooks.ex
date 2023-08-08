@@ -478,7 +478,6 @@ defmodule Linku.Notebooks do
   def test(to, %Scope{} = scope) do
     parent = self()
     Node.spawn_link(to, fn ->
-      IO.inspect(scope)
       send(parent, {:done, node()})
     end)
   end

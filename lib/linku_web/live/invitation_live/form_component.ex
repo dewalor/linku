@@ -6,8 +6,6 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
 
   @impl true
   def render(assigns) do
-    IO.inspect(assigns, label: "Form Component Render ASSIGNS:::")
-    IO.inspect(assigns.form.data.line_id, label: "ASSIGNS FORM DATA LINE_ID :::")
     ~H"""
     <div>
       <.header>
@@ -37,8 +35,6 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
 
   @impl true
   def update(%{invitation: invitation} = assigns, socket) do
-    IO.inspect(assigns, label: "ASSIGNS in update")
-    IO.inspect(invitation, label: "INVITATION in UPDATE ASSIGNS???")
     changeset = Collaborations.change_invitation(invitation)
 
     {:ok,
@@ -50,7 +46,6 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
 
   @impl true
   def handle_event("validate", %{"invitation" => invitation_params}, socket) do
-    IO.inspect(invitation_params, label: "INVITATION PARAMS in HANDLE EVENT!!!")
     changeset =
       socket.assigns.invitation
       |> Collaborations.change_invitation(invitation_params)
@@ -71,7 +66,7 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Invitation updated successfully")
-         |> push_patch(to: socket.assigns.patch)}
+         |> push_navigate(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
@@ -86,7 +81,7 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Invitation created successfully")
-         |> push_patch(to: socket.assigns.patch)}
+         |> push_navigate(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
