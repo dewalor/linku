@@ -6,6 +6,15 @@ defmodule LinkuWeb.InvitationLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    socket = assign(socket, current_user_id: socket.assigns.scope.current_user_id)
+
+    # TODO: redirect if user isn't confirmed
+    # if socket.assigns.scope.current_user.confirmed_at do
+    #   socket
+    # else
+    #   redirect(socket, to: ~p"/login")
+    # end
+
     {:ok, stream(socket, :invitations, Collaborations.list_invitations())}
   end
 

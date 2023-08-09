@@ -7,12 +7,12 @@ defmodule LinkuWeb.RenkuComponent do
   alias Linku.Collaborations.Invitation
 
   def render(assigns) do
-  #   <.live_component
-  #   if={form[:invitations]}
-  #   module={InvitationLive.FormComponent}
-  #   invitation={@invitation}
-  #   id="invitation-form"
-  # />
+    #   <.live_component
+    #   if={form[:invitations]}
+    #   module={InvitationLive.FormComponent}
+    #   invitation={@invitation}
+    #   id="invitation-form"
+    # />
     ~H"""
     <div>
       <div
@@ -75,7 +75,7 @@ defmodule LinkuWeb.RenkuComponent do
                 <.link
                   :if={form.data.id}
                   patch={~p"/lines/#{form.data.id}/invitations/new"}
-                  alt="Edit list">
+                  alt="New invitation">
                   <.icon name="hero-pencil-square" />
                 </.link>
                 <.inputs_for :let={form_invitations} field={form[:invitations]}>
@@ -141,12 +141,10 @@ defmodule LinkuWeb.RenkuComponent do
     {:ok,
      socket
      |> assign(renku_id: renku.id, scope: assigns.scope)
-     |> stream(:lines, line_forms)
-    }
+     |> stream(:lines, line_forms)}
   end
 
   def handle_event("validate", %{"line" => line_params} = params, socket) do
-
     line = %Line{id: params["id"], renku_id: socket.assigns.renku_id}
 
     {:noreply, stream_insert(socket, :lines, to_change_form(line, line_params, :validate))}
@@ -197,8 +195,8 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("new", %{"at" => at}, socket) do
-     line = build_line(socket.assigns.renku_id)
-     {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
+    line = build_line(socket.assigns.renku_id)
+    {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
   end
 
   def handle_event("invite", %{"id" => line_id}, socket) do
@@ -246,7 +244,8 @@ defmodule LinkuWeb.RenkuComponent do
     changeset =
       line_or_changeset
       |> Notebooks.change_line(params)
-      |> cast_assoc(:invitations, with: &Linku.Collaborations.Invitation.changeset/2) #merge with data from params
+      # merge with data from params
+      |> cast_assoc(:invitations, with: &Linku.Collaborations.Invitation.changeset/2)
       |> Map.put(:action, action)
 
     to_form(changeset, as: "line", id: "form-#{changeset.data.renku_id}-#{changeset.data.id}")
@@ -264,5 +263,4 @@ defmodule LinkuWeb.RenkuComponent do
   defp build_line(renku_id), do: %Line{renku_id: renku_id}
 
   defp build_invitation(line_id), do: %Invitation{line_id: line_id}
-
 end

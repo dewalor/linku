@@ -69,7 +69,7 @@ defmodule LinkuWeb.HomeLive do
     """
   end
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
     if connected?(socket) do
       Notebooks.subscribe(socket.assigns.scope)
     end

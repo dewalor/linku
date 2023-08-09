@@ -34,6 +34,7 @@
 <.modal :if={@live_action in [:new, :edit]} id="invitation-modal" show on_cancel={JS.patch(~p"/")}>
   <.live_component
     module={LinkuWeb.InvitationLive.FormComponent}
+    current_user_id={@current_user_id}
     id={@invitation.id || :new}
     title={@page_title}
     line_id={@line_id}

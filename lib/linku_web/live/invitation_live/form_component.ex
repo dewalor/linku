@@ -1,8 +1,10 @@
 defmodule LinkuWeb.InvitationLive.FormComponent do
   use LinkuWeb, :live_component
 
+  alias Linku.Accounts
   alias Linku.Collaborations
   alias Linku.Collaborations.Invitation
+  alias Linku.Collaborations.InvitationNotifier
 
   @impl true
   def render(assigns) do
@@ -77,6 +79,9 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
     case Collaborations.create_invitation(invitation_params) do
       {:ok, invitation} ->
         notify_parent({:saved, invitation})
+
+        current_user = Accounts.get_user!(socket.assigns.current_user_id)
+        InvitationNotifier.deliver_invitation(invitation.invitee_email, current_user.email, invitation.line_id)
 
         {:noreply,
          socket
