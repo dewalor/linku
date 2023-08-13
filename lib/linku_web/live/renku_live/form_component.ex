@@ -16,7 +16,7 @@ defmodule LinkuWeb.RenkuLive.FormComponent do
         phx-submit="save"
       >
         <div class="space-y-4 mb-6">
-          <.input field={@form[:title]} type="text" />
+          <.input field={@form[:title]} type="text" placeholder="Enter a title for your renku here." />
         </div>
         <:actions>
           <.button phx-disable-with="Saving...">

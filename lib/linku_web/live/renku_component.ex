@@ -151,10 +151,14 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("save", %{"id" => id, "line" => params}, socket) do
-    line = Notebooks.get_line!(socket.assigns.scope, id)
+    line = case fetched_line = Notebooks.get_line!(socket.assigns.scope, id) do
+      %Line{} -> fetched_line
+      _ -> params
+    end
 
     case Notebooks.update_line(socket.assigns.scope, line, params) do
       {:ok, updated_line} ->
+        IO.inspect(updated_line, label: "UPDATED LINE::::")
         {:noreply, stream_insert(socket, :lines, to_change_form(updated_line, %{}))}
 
       {:error, changeset} ->

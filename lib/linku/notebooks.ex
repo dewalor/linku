@@ -281,11 +281,20 @@ defmodule Linku.Notebooks do
   Returns the active renkus for the current scope.
   """
   def active_renkus(%Scope{} = scope, limit) do
-    lines_query = from(l in Line,
-                    where: l.user_id == ^scope.current_user.id,
-                    limit: @max_lines,
-                    order_by: [asc: l.position]
-                  )
+    IO.inspect(scope, label: "SCOPE in active renkus")
+    # if current user hasn't initiated any renkus, lines_query should only return the lines they wrote
+    lines_query = case get_renkus_for_user!(scope) do
+      [] -> from(l in Line,
+      where: l.user_id == ^scope.current_user.id,
+      limit: @max_lines,
+      order_by: [asc: l.position]
+    )
+
+      _ -> from(l in Line,
+      limit: @max_lines,
+      order_by: [asc: l.position]
+    )
+    end
 
     from(r in Renku,
       where: r.user_id == ^scope.current_user.id,
@@ -299,12 +308,23 @@ defmodule Linku.Notebooks do
   end
 
   @doc """
+  Gets renkus owned by the scoped user.
+
+  Raises `Ecto.NoResultsError` if the Renku does not exist.
+  """
+  def get_renkus_for_user!(%Scope{} = scope) do
+    from(r in Renku, where: r.user_id == ^scope.current_user.id)
+    |> Repo.all()
+    |> preload()
+  end
+
+  @doc """
   Gets a single renku owned by the scoped user.
 
   Raises `Ecto.NoResultsError` if the Renku does not exist.
   """
   def get_renku!(%Scope{} = scope, id) do
-    from(l in Renku, where: l.user_id == ^scope.current_user.id, where: l.id == ^id)
+    from(r in Renku, where: r.user_id == ^scope.current_user.id, where: r.id == ^id)
     |> Repo.one!()
     |> preload()
   end
