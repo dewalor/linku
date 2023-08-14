@@ -495,7 +495,17 @@ defmodule Linku.Notebooks do
     end)
   end
 
-  def test(to, %Scope{} = scope) do
+  defp generate_random_key() do
+    :crypto.strong_rand_bytes(5)
+    |> Base.url_encode64()
+    |> String.replace(~r/[-_\=]/, "")
+    |> binary_part(0, 5)
+  end
+
+
+
+
+  def test(to, %Scope{} = _scope) do
     parent = self()
     Node.spawn_link(to, fn ->
       send(parent, {:done, node()})
