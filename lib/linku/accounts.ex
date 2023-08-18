@@ -328,6 +328,15 @@ defmodule Linku.Accounts do
     end
   end
 
+  def get_user_by_email_token(token, context) do
+    with {:ok, query} <- UserToken.verify_email_token_query(token, context),
+         %User{} = user <- Repo.one(query) do
+      user
+    else
+      _ -> nil
+    end
+  end
+
   @doc """
   Resets the user password.
 
@@ -349,5 +358,16 @@ defmodule Linku.Accounts do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
     end
+  end
+
+  @doc """
+  Generates and delivers a "magic" sign in link to a user's email
+  """
+  def deliver_magic_link(user) do
+    {email_token, token} = UserToken.build_email_token(user, "magic_link")
+    Repo.insert!(token)
+
+    url = "#{LinkuWeb.Endpoint.url()}/users/log_in/#{email_token}"
+    UserNotifier.deliver_magic_link(user, url)
   end
 end

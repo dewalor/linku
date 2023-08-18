@@ -29,6 +29,8 @@ defmodule LinkuWeb.Router do
       live "/lines/:id/invitations", InvitationLive.Index, :index
       live "/lines/:id/invitations/new", InvitationLive.Index, :new
       live "/lines/:id/invitations/:id", InvitationLive.Show, :show
+
+      live "/invitations/:key", HomeLive, :dashboard
     end
   end
 
@@ -68,6 +70,7 @@ defmodule LinkuWeb.Router do
     end
 
     post "/users/log_in", UserSessionController, :create
+    get "/users/log_in/:token", UserSessionController, :create
   end
 
   scope "/", LinkuWeb do
