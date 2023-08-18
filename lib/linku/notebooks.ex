@@ -282,7 +282,7 @@ defmodule Linku.Notebooks do
   """
   def active_renkus(%Scope{} = scope, limit) do
     IO.inspect(scope, label: "SCOPE in active renkus")
-    # if current user hasn't initiated any renkus, lines_query should only return the lines they wrote
+    # if the authenticated current user hasn't initiated any renkus, lines_query should only return the lines they wrote
     lines_query = case get_renkus_for_user!(scope) do
       [] -> from(l in Line,
       where: l.user_id == ^scope.current_user.id,
@@ -494,16 +494,6 @@ defmodule Linku.Notebooks do
       )
     end)
   end
-
-  defp generate_random_key() do
-    :crypto.strong_rand_bytes(5)
-    |> Base.url_encode64()
-    |> String.replace(~r/[-_\=]/, "")
-    |> binary_part(0, 5)
-  end
-
-
-
 
   def test(to, %Scope{} = _scope) do
     parent = self()

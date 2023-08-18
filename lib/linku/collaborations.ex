@@ -50,7 +50,7 @@ defmodule Linku.Collaborations do
 
   """
   def create_invitation(attrs \\ %{}) do
-    %Invitation{}
+    %Invitation{ key: generate_random_key() }
     |> Invitation.changeset(attrs)
     |> Repo.insert()
   end
@@ -104,5 +104,12 @@ defmodule Linku.Collaborations do
       _ -> Invitation.changeset(invitation, attrs)
     end
 
+  end
+
+  defp generate_random_key() do
+    :crypto.strong_rand_bytes(8)
+    |> Base.url_encode64()
+    |> String.replace(~r/[-_\=]/, "")
+    |> Kernel.binary_part(0, 8)
   end
 end

@@ -22,10 +22,15 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
         phx-submit="save"
       >
       <.input field={@form[:line_id]} type="hidden" value={@form.data.line_id}/>
-      <.input
-        field={@form[:invitee_email]}
-        type="text"
-        placeholder="Invitee Email"
+        <.input
+          field={@form[:invitee_email]}
+          type="text"
+          placeholder="Invitee Email"
+        />
+        <.input
+          field={@form[:invitee_name]}
+          type="text"
+          placeholder="Invitee Name"
         />
         <:actions>
           <.button phx-disable-with="Saving...">Save Invitation</.button>
