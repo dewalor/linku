@@ -4,6 +4,7 @@ defmodule LinkuWeb.UserSessionController do
   alias Linku.Accounts
   alias Linku.Accounts.User
   alias LinkuWeb.UserAuth
+  alias Linku.Collaborations
 
   def create(conn, %{"_action" => "registered"} = params) do
     create(conn, params, "Account created successfully!")
@@ -17,9 +18,15 @@ defmodule LinkuWeb.UserSessionController do
 
   def create(conn, %{"_action" => "magic_link"} = params) do
     %{"user" => %{"email" => email}} = params
-    if user = Accounts.get_user_by_email(email) do
 
+    if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_magic_link(user)
+    else
+      #if e-mail is associated with an invitation, create a user record and send magic link
+      with Collaborations.get_invitation_by_email(email),
+      {:ok, user} <- Accounts.register_user(%{email: email, password: :crypto.strong_rand_bytes(15)}) do
+            Accounts.deliver_magic_link(user)
+      end
     end
 
     # In order to prevent user enumeration attacks, don't disclose whether the email is registered.

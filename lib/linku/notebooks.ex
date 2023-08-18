@@ -282,7 +282,10 @@ defmodule Linku.Notebooks do
   """
   def active_renkus(%Scope{} = scope, limit) do
     IO.inspect(scope, label: "SCOPE in active renkus")
-    # if the authenticated current user hasn't initiated any renkus, lines_query should only return the lines they wrote
+    # lines_query should return:
+    # 1. entire renkus the current user initiated AND
+    # 2. any lines (in other renkus) they were invited to look at AND
+    # 3. any lines (in other renkus) they wrote
     lines_query = case get_renkus_for_user!(scope) do
       [] -> from(l in Line,
       where: l.user_id == ^scope.current_user.id,

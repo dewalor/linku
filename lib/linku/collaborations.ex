@@ -38,6 +38,22 @@ defmodule Linku.Collaborations do
   def get_invitation!(id), do: Repo.get!(Invitation, id)
 
   @doc """
+  Gets a single invitation by email.
+
+  Raises `Ecto.NoResultsError` if the Invitation does not exist.
+
+  ## Examples
+
+      iex> get_invitation_by_email("me@example.com")
+      %Invitation{}
+
+      iex> get_invitation_by_email("unknown@example.com")
+      nil
+
+  """
+  def get_invitation_by_email(email), do: Repo.get_by(Invitation, invitee_email: email)
+
+  @doc """
   Creates a invitation.
 
   ## Examples
