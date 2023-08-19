@@ -86,7 +86,7 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
         notify_parent({:saved, invitation})
 
         current_user = Accounts.get_user!(socket.assigns.current_user_id)
-        InvitationNotifier.deliver_invitation(invitation.invitee_email, current_user.email, invitation.line_id)
+        InvitationNotifier.deliver_invitation(invitation.invitee_email, current_user.email, invitation.key)
 
         {:noreply,
          socket

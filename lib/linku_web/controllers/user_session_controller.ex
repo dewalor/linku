@@ -1,6 +1,7 @@
 defmodule LinkuWeb.UserSessionController do
   use LinkuWeb, :controller
 
+  alias Linku.Repo
   alias Linku.Accounts
   alias Linku.Accounts.User
   alias LinkuWeb.UserAuth
@@ -22,8 +23,8 @@ defmodule LinkuWeb.UserSessionController do
     if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_magic_link(user)
     else
-      #if e-mail is associated with an invitation, create a user record and send magic link
-      with Collaborations.get_invitation_by_email(email),
+      #if e-mail is associated with at least one invitation, create a user record and send magic link
+      with Collaborations.associated_with_invitations?(email),
       {:ok, user} <- Accounts.register_user(%{email: email, password: :crypto.strong_rand_bytes(15)}) do
             Accounts.deliver_magic_link(user)
       end

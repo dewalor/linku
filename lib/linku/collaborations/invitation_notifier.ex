@@ -17,8 +17,8 @@ defmodule Linku.Collaborations.InvitationNotifier do
     end
   end
 
-  def deliver_invitation(invitee_email, sender_email, line_id) do
-    url = "/"
+  def deliver_invitation(invitee_email, sender_email, invitation_key) do
+    url = "#{LinkuWeb.Endpoint.url()}/invitations/#{invitation_key}"
 
     deliver(invitee_email, sender_email, """
 

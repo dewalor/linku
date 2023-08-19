@@ -51,7 +51,10 @@ defmodule Linku.Collaborations do
       nil
 
   """
-  def get_invitation_by_email(email), do: Repo.get_by(Invitation, invitee_email: email)
+  def associated_with_invitations?(email) do
+    query = from i in Invitation, where: i.invitee_email == ^email
+    Repo.exists?(query)
+  end
 
   @doc """
   Creates a invitation.
