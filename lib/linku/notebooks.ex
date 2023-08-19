@@ -286,21 +286,22 @@ defmodule Linku.Notebooks do
     # 1. entire renkus the current user initiated AND
     # 2. any lines (in other renkus) they were invited to look at AND
     # 3. any lines (in other renkus) they wrote
-    lines_query = case get_renkus_for_user!(scope) do
-      [] -> from(l in Line,
-      where: l.user_id == ^scope.current_user.id,
+    lines_query = from(l in Line,
+      join: r in Renku,
+      on: l.renku_id==r.id,
+      join: i in Invitation,
+      on: i.line_id==l.id,
+      where: r.user_id==^scope.current_user.id or l.user_id==^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
       limit: @max_lines,
       order_by: [asc: l.position]
     )
-
-      _ -> from(l in Line,
-      limit: @max_lines,
-      order_by: [asc: l.position]
-    )
-    end
 
     from(r in Renku,
-      where: r.user_id == ^scope.current_user.id,
+      join: l in Line,
+      on: r.id==l.renku_id,
+      join: i in Invitation,
+      on: i.line_id==l.id,
+      where: r.user_id==^scope.current_user.id or l.user_id==^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
       limit: ^limit,
       order_by: [asc: :position]
     )
