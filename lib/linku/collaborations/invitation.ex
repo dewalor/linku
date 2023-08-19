@@ -16,6 +16,6 @@ defmodule Linku.Collaborations.Invitation do
   def changeset(invitation, attrs) do
     invitation
     |> cast(attrs, [:id, :invitee_email, :invitee_name, :accepted_at, :line_id, :key])
-    |> validate_required([:invitee_email, :invitee_name, :line_id, :key])
+    |> validate_required([:invitee_email, :line_id, :key])
   end
 end

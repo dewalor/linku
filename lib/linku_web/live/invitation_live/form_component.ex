@@ -21,7 +21,7 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-      <.input field={@form[:line_id]} type="hidden" value={@form.data.line_id}/>
+      <.input field={@form[:line_id]} type="hidden" value={@line_id}/>
         <.input
           field={@form[:invitee_email]}
           type="text"
@@ -47,7 +47,7 @@ defmodule LinkuWeb.InvitationLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-  #   |> assign_invitation()
+     |> assign_invitation()
      |> assign_form(changeset)}
   end
 
