@@ -2,7 +2,8 @@ defmodule LinkuWeb.RenkuComponent do
   use LinkuWeb, :live_component
   import Ecto.Changeset
 
-  alias Linku.{Events, Notebooks}
+  alias Linku.Events
+  alias Linku.Notebooks
   alias Linku.Notebooks.Line
   alias Linku.Collaborations.Invitation
 
@@ -158,7 +159,6 @@ defmodule LinkuWeb.RenkuComponent do
 
     case Notebooks.update_line(socket.assigns.scope, line, params) do
       {:ok, updated_line} ->
-        IO.inspect(updated_line, label: "UPDATED LINE::::")
         {:noreply, stream_insert(socket, :lines, to_change_form(updated_line, %{}))}
 
       {:error, changeset} ->
@@ -167,7 +167,8 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("save", %{"line" => params}, socket) do
-    renku = Notebooks.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
+    #get the renku if the user is allowed to add a line to it. i.e. initiated or has been invited to it
+    renku = Notebooks.get_renku_if_allowed_to_write!(socket.assigns.scope, socket.assigns.renku_id)
 
     case Notebooks.create_line(socket.assigns.scope, renku, params) do
       {:ok, new_line} ->

@@ -333,6 +333,19 @@ defmodule Linku.Notebooks do
     |> preload()
   end
 
+  @doc """
+  Gets a single renku if the scoped user is allowed to add a line to it, i.e. invited to or owns it.
+
+  Raises `Ecto.NoResultsError` if the ownership or invitation association or the given renku does not exist.
+  """
+  def get_renku_if_allowed_to_write!(%Scope{} = scope, id) do
+    from(r in Renku, join: l in Line, on: r.id == l.renku_id, join: i in Invitation, on: l.id == i.line_id,
+        where: r.user_id == ^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
+        where: r.id == ^id)
+    |> Repo.one!()
+    |> preload()
+  end
+
   defp preload(resource), do: Repo.preload(resource, [:lines])
 
   @doc """
