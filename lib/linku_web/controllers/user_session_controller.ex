@@ -1,7 +1,6 @@
 defmodule LinkuWeb.UserSessionController do
   use LinkuWeb, :controller
 
-  alias Linku.Repo
   alias Linku.Accounts
   alias Linku.Accounts.User
   alias LinkuWeb.UserAuth

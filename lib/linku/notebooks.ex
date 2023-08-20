@@ -286,15 +286,37 @@ defmodule Linku.Notebooks do
     # 1. entire renkus the current user initiated AND
     # 2. any lines (in other renkus) they were invited to look at AND
     # 3. any lines (in other renkus) they wrote
-    lines_query = from(l in Line,
-      join: r in Renku,
-      on: l.renku_id==r.id,
-      join: i in Invitation,
-      on: i.line_id==l.id,
-      where: r.user_id==^scope.current_user.id or l.user_id==^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
-      limit: @max_lines,
-      order_by: [asc: l.position]
-    )
+
+    # lines_query = from(l in Line,
+    #   join: r in Renku,
+    #   on: l.renku_id==r.id,
+    #   join: i in Invitation,
+    #   on: i.line_id==l.id,
+    #   where: r.user_id==^scope.current_user.id or l.user_id==^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
+    #   limit: @max_lines,
+    #   order_by: [asc: l.position]
+    # )
+
+    renku_query = from(l in Line, join: r in Renku, on: l.renku_id==r.id, where: r.user_id==^scope.current_user.id)
+
+    invitee_query = from(l in Line, join: i in Invitation, on: i.line_id==l.id, where: i.invitee_email == ^scope.current_user.email)
+
+    #TODO: refactor optional renku query
+    lines_query = case get_renkus_for_user(scope) do
+      [] -> from(l in Line,
+              where: l.user_id==^scope.current_user.id,
+              union: ^invitee_query,
+              limit: @max_lines,
+              order_by: [asc: l.position]
+              )
+      _ -> from(l in Line,
+              where: l.user_id==^scope.current_user.id,
+              union: ^invitee_query,
+              union: ^renku_query,
+              limit: @max_lines,
+              order_by: [asc: l.position]
+            )
+    end
 
     from(r in Renku,
       join: l in Line,
@@ -330,6 +352,15 @@ defmodule Linku.Notebooks do
   def get_renku!(%Scope{} = scope, id) do
     from(r in Renku, where: r.user_id == ^scope.current_user.id, where: r.id == ^id)
     |> Repo.one!()
+    |> preload()
+  end
+
+  @doc """
+  Gets renkus owned by the scoped user.
+  """
+  def get_renkus_for_user(%Scope{} = scope) do
+    from(r in Renku, where: r.user_id == ^scope.current_user.id)
+    |> Repo.all()
     |> preload()
   end
 
