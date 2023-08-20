@@ -282,10 +282,33 @@ defmodule Linku.Notebooks do
   """
   def active_renkus(%Scope{} = scope, limit) do
     IO.inspect(scope, label: "SCOPE in active renkus")
-    # lines_query should return:
-    # 1. entire renkus the current user initiated AND
-    # 2. any lines (in other renkus) they were invited to look at AND
-    # 3. any lines (in other renkus) they wrote
+    # active_renkus_query should return the following renkus:
+    # 1. renkus the current user initiated, if any AND
+    # 2. renkus with lines they were invited to read
+
+    # active_renkus_query should return the above renkus with these lines preloaded:
+    # 1. if the current user initiated any renkus, they should see all the lines in those renkus AND
+    # 2. if the current user were invited to any renkus, they should see all the lines they were invited to read in those renkus AND the lines they wrote
+
+    line_invitee_subset = from(
+      i in Invitation,
+      where: i.invitee_email == ^scope.current_user.email
+    )
+
+    renku_invitee_query = from(r in Renku,
+      join: l in Line,
+      on: l.renku_id==r.id,
+      join: i in Invitation,
+      on: i.line_id==l.id,
+      where: exists(subquery(line_invitee_subset))
+    )
+
+    renku_query = from(r in Renku,
+      where: r.user_id==^scope.current_user.id,
+      union: ^renku_invitee_query,
+      limit: ^limit
+      #order_by: [asc: :position]
+    )
 
     # lines_query = from(l in Line,
     #   join: r in Renku,
@@ -297,37 +320,44 @@ defmodule Linku.Notebooks do
     #   order_by: [asc: l.position]
     # )
 
-    renku_query = from(l in Line, join: r in Renku, on: l.renku_id==r.id, where: r.user_id==^scope.current_user.id)
+#    renku_initiator_query = from(l in Line, join: r in Renku, on: l.renku_id==r.id, where: r.user_id== ^scope.current_user.id)
 
-    invitee_query = from(l in Line, join: i in Invitation, on: i.line_id==l.id, where: i.invitee_email == ^scope.current_user.email)
+#    line_author_query = from(l in Line, where: l.user_id== ^scope.current_user.id)
 
-    #TODO: refactor optional renku query
-    lines_query = case get_renkus_for_user(scope) do
-      [] -> from(l in Line,
-              where: l.user_id==^scope.current_user.id,
-              union: ^invitee_query,
-              limit: @max_lines,
-              order_by: [asc: l.position]
-              )
-      _ -> from(l in Line,
-              where: l.user_id==^scope.current_user.id,
-              union: ^invitee_query,
-              union: ^renku_query,
-              limit: @max_lines,
-              order_by: [asc: l.position]
-            )
-    end
+#    invitee_query = from(l in Line, join: i in Invitation, on: i.line_id==l.id, where: i.invitee_email == ^scope.current_user.email)
 
-    from(r in Renku,
-      join: l in Line,
-      on: r.id==l.renku_id,
-      join: i in Invitation,
-      on: i.line_id==l.id,
-      where: r.user_id==^scope.current_user.id or l.user_id==^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
-      limit: ^limit,
-      order_by: [asc: :position]
-    )
-    |> Repo.all()
+
+
+    #TODO: refactor optional renku query with where exists
+    # `union` queries must be wrapped inside of a subquery when preloading a `has_many` or `many_to_many` association.
+    #  You must also ensure that all members of the `union` query select the parent's foreign key
+
+    # lines_query = case get_renkus_for_user(scope) do
+    #   [] -> from(l in Line,
+    #           where: l.user_id==^scope.current_user.id,
+    #           union: ^invitee_query,
+    #           limit: @max_lines,
+    #           order_by: [asc: l.position]
+    #           )
+    #   _ -> from(l in Line,
+    #           where: l.user_id==^scope.current_user.id,
+    #           union: ^invitee_query,
+    #           union: ^renku_query,
+    #           limit: @max_lines,
+    #           order_by: [asc: l.position]
+    #         )
+    # end
+
+    # inner_query =
+    #   from(l in Line,
+    #   where: l.user_id==^scope.current_user.id,
+    #   union: ^invitee_query,
+    #   limit: @max_lines,
+    #   order_by: [asc: l.position]
+    #   )
+    lines_query = from l in Line
+
+    Repo.all(renku_query)
     |> Repo.preload(
        lines: {lines_query, :invitations}
      )
