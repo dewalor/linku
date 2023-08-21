@@ -430,15 +430,28 @@ defmodule Linku.Notebooks do
   Raises `Ecto.NoResultsError` if the ownership or invitation association or the given renku does not exist.
   """
   def get_renku_if_allowed_to_write!(%Scope{} = scope, id) do
-    from(r in Renku,
-      join: l in Line,
-      on: r.id == l.renku_id,
-      join: i in Invitation,
-      on: l.id == i.line_id,
-      where: r.user_id == ^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
-      where: r.id == ^id
-    )
-    |> Repo.one!()
+    line_invitee_subset =
+      from(
+        i in Invitation,
+        where: i.invitee_email == ^scope.current_user.email
+      )
+
+    renku_invitee_query =
+      from(r in Renku,
+        join: l in Line,
+        on: l.renku_id == r.id,
+        join: s in subquery(line_invitee_subset),
+        on: s.line_id == l.id,
+        where: r.id == ^id
+      )
+
+    renku_query =
+      from(r in Renku,
+        where: r.id == ^id,
+        where: r.user_id == ^scope.current_user.id,
+        union: ^renku_invitee_query
+      )
+    Repo.one!(renku_query)
     |> preload()
   end
 
