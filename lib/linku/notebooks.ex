@@ -286,29 +286,36 @@ defmodule Linku.Notebooks do
     # 1. renkus the current user initiated, if any AND
     # 2. renkus with lines they were invited to read
 
+#--------------------------------------------------------------------------
+    line_invitee_subset =
+      from(
+        i in Invitation,
+        where: i.invitee_email == ^scope.current_user.email
+      )
+
+    renku_invitee_query =
+      from(r in Renku,
+        join: l in Line,
+        on: l.renku_id == r.id,
+        join: i in Invitation,
+        on: i.line_id == l.id,
+        where: exists(subquery(line_invitee_subset))
+      )
+
+    renku_query =
+      from(r in Renku,
+        where: r.user_id == ^scope.current_user.id,
+        union: ^renku_invitee_query,
+        limit: ^limit
+      )
+      # order_by: [asc: :position]
+#--------------------------------------------------------------------------
+
     # active_renkus_query should return the above renkus with these lines preloaded:
     # 1. if the current user initiated any renkus, they should see all the lines in those renkus AND
     # 2. if the current user were invited to any renkus, they should see all the lines they were invited to read in those renkus AND the lines they wrote
 
-    line_invitee_subset = from(
-      i in Invitation,
-      where: i.invitee_email == ^scope.current_user.email
-    )
 
-    renku_invitee_query = from(r in Renku,
-      join: l in Line,
-      on: l.renku_id==r.id,
-      join: i in Invitation,
-      on: i.line_id==l.id,
-      where: exists(subquery(line_invitee_subset))
-    )
-
-    renku_query = from(r in Renku,
-      where: r.user_id==^scope.current_user.id,
-      union: ^renku_invitee_query,
-      limit: ^limit
-      #order_by: [asc: :position]
-    )
 
     # lines_query = from(l in Line,
     #   join: r in Renku,
@@ -320,15 +327,7 @@ defmodule Linku.Notebooks do
     #   order_by: [asc: l.position]
     # )
 
-#    renku_initiator_query = from(l in Line, join: r in Renku, on: l.renku_id==r.id, where: r.user_id== ^scope.current_user.id)
-
-#    line_author_query = from(l in Line, where: l.user_id== ^scope.current_user.id)
-
-#    invitee_query = from(l in Line, join: i in Invitation, on: i.line_id==l.id, where: i.invitee_email == ^scope.current_user.email)
-
-
-
-    #TODO: refactor optional renku query with where exists
+    # TODO: refactor optional renku query with where exists
     # `union` queries must be wrapped inside of a subquery when preloading a `has_many` or `many_to_many` association.
     #  You must also ensure that all members of the `union` query select the parent's foreign key
 
@@ -355,12 +354,43 @@ defmodule Linku.Notebooks do
     #   limit: @max_lines,
     #   order_by: [asc: l.position]
     #   )
-    lines_query = from l in Line
+
+    renku_initiator_query =
+      from(l in Line,
+#      select: [l.id, l.title, l.position, l.renku_id, l.user_id],
+        join: r in Renku,
+        on: l.renku_id == r.id,
+        where: r.user_id == ^scope.current_user.id
+      )
+
+    invitee_query =
+      from(l in Line,
+#      select: [l.id, l.title, l.position, l.renku_id, l.user_id],
+        join: i in Invitation,
+        on: i.line_id == l.id,
+        where: i.invitee_email == ^scope.current_user.email
+      )
+      # join: i in Invitation,
+      # on: i.line_id == l.id,
+      # where: exists(subquery(line_invitee_subset))
+
+    lines_query =
+      from(
+        l in Line,
+#        select: [l.id, l.title, l.position, l.renku_id, l.user_id],
+        where: l.user_id == ^scope.current_user.id,
+        union: ^renku_initiator_query,
+        union: ^invitee_query
+        #where: l.id in subquery(^renku_initiator_query)
+        #or l.id in subquery(^renku_initiator_query) or l.id in subquery(^invitee_query)
+      )
+
+  #    |> union(^renku_initiator_query)
+  #    |> union(^invitee_query)
+
 
     Repo.all(renku_query)
-    |> Repo.preload(
-       lines: {lines_query, :invitations}
-     )
+    |> Repo.preload(lines: {(from s in subquery(lines_query), order_by: s.id), :invitations})
   end
 
   @doc """
@@ -400,9 +430,14 @@ defmodule Linku.Notebooks do
   Raises `Ecto.NoResultsError` if the ownership or invitation association or the given renku does not exist.
   """
   def get_renku_if_allowed_to_write!(%Scope{} = scope, id) do
-    from(r in Renku, join: l in Line, on: r.id == l.renku_id, join: i in Invitation, on: l.id == i.line_id,
-        where: r.user_id == ^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
-        where: r.id == ^id)
+    from(r in Renku,
+      join: l in Line,
+      on: r.id == l.renku_id,
+      join: i in Invitation,
+      on: l.id == i.line_id,
+      where: r.user_id == ^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
+      where: r.id == ^id
+    )
     |> Repo.one!()
     |> preload()
   end
