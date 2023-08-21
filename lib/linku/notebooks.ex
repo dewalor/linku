@@ -297,9 +297,9 @@ defmodule Linku.Notebooks do
       from(r in Renku,
         join: l in Line,
         on: l.renku_id == r.id,
-        join: i in Invitation,
-        on: i.line_id == l.id,
-        where: exists(subquery(line_invitee_subset))
+        join: s in subquery(line_invitee_subset),
+        on: s.line_id == l.id
+  #      where: exists(subquery(line_invitee_subset))
       )
 
     renku_query =
