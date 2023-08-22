@@ -45,6 +45,7 @@ defmodule LinkuWeb.HomeLive do
               scope={@scope}
               renku={renku}
               max_lines={renku.max_lines}
+              line_count={length(renku.lines)}
             />
           </div>
         </div>

@@ -75,7 +75,7 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-target={@myself}
                 />
                 <.link
-                  :if={form.data.id && (form.data.position+1) < @max_lines}
+                  :if={form.data.id && (form.data.position+1) < @max_lines && (form.data.position+1) == @line_count}
                   patch={~p"/lines/#{form.data.id}/invitations/new"}
                   alt="New invitation">
                   <.icon name="hero-pencil-square" />
@@ -141,7 +141,7 @@ defmodule LinkuWeb.RenkuComponent do
     line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
     {:ok,
      socket
-     |> assign(renku_id: renku.id, max_lines: renku.max_lines, scope: assigns.scope)
+     |> assign(renku_id: renku.id, max_lines: renku.max_lines, line_count: length(renku.lines), scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end
 
