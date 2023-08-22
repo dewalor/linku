@@ -3,12 +3,13 @@ defmodule Linku.Accounts.UserNotifier do
 
   alias Linku.Mailer
 
+  # TODO: refactor and consolidate
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
     email =
       new()
       |> to(recipient)
-      |> from({"Forms", "contact@example.com"})
+      |> from({"Linku Renku", "contact@example.com"})
       |> subject(subject)
       |> text_body(body)
 

@@ -2,6 +2,7 @@ defmodule LinkuWeb.RenkuComponent do
   use LinkuWeb, :live_component
   import Ecto.Changeset
 
+  alias Linku.Repo
   alias Linku.Events
   alias Linku.Notebooks
   alias Linku.Notebooks.Line
@@ -74,8 +75,13 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
                 />
+
                 <.link
-                  :if={form.data.id && (form.data.position+1) < @max_lines && (form.data.position+1) == @line_count}
+                  :if={form.data.id
+                      && form.data.position
+                      && form.data.position < @max_lines - 1
+                      && form.data.position == @line_count - 1
+                      }
                   patch={~p"/lines/#{form.data.id}/invitations/new"}
                   alt="New invitation">
                   <.icon name="hero-pencil-square" />
@@ -111,8 +117,6 @@ defmodule LinkuWeb.RenkuComponent do
       >
         New Line
       </.button>
-
-      <.button phx-click={JS.push("reset", target: @myself)} class="mt-4">reset</.button>
     </div>
     """
   end
@@ -169,11 +173,11 @@ defmodule LinkuWeb.RenkuComponent do
   def handle_event("save", %{"line" => params}, socket) do
     #get the renku if the user is allowed to add a line to it. i.e. initiated or has been invited to it
     renku = Notebooks.get_renku_if_allowed_to_write!(socket.assigns.scope, socket.assigns.renku_id)
+    renku = Repo.preload(renku, :user)
 
     case Notebooks.create_line(socket.assigns.scope, renku, params) do
       {:ok, new_line} ->
         empty_form = to_change_form(build_line(socket.assigns.renku_id), %{})
-
         {:noreply,
          socket
          |> stream_insert(:lines, to_change_form(new_line, %{}))

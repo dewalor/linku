@@ -6,7 +6,7 @@ defmodule Linku.Notebooks do
   import Ecto.Query, warn: false
   alias Linku.{Repo, Scope, Events}
 
-  alias Linku.Notebooks.{Renku, Line}
+  alias Linku.Notebooks.{Renku, Line, RenkuNotifier}
   alias Linku.Collaborations.Invitation
   alias Linku.ActivityLog
 
@@ -269,6 +269,8 @@ defmodule Linku.Notebooks do
           })
 
         broadcast(scope, %Events.LineAdded{line: line, log: log})
+        line = Repo.preload(line, :user)
+        RenkuNotifier.deliver_renku_completion_notification(renku.user, line.user, renku)
 
         {:ok, line}
 
