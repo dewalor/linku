@@ -121,6 +121,13 @@ defmodule LinkuWeb.HomeLive do
      |> stream_new_log(event)}
   end
 
+  def handle_info({Linku.Notebooks, %Events.RenkuPublished{renku: renku} = event}, socket) do
+    {:noreply,
+     socket
+     |> stream_insert(:renkus, renku)
+     |> stream_new_log(event)}
+  end
+
   def handle_info({Linku.Notebooks, %Events.RenkuDeleted{renku: renku} = event}, socket) do
     {:noreply,
      socket

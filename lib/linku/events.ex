@@ -10,6 +10,10 @@ defmodule Linku.Events do
     defstruct renku: nil, log: nil
   end
 
+  defmodule RenkuPublished do
+    defstruct renku: nil, log: nil
+  end
+
   defmodule LineAdded do
     defstruct line: nil, log: nil
   end

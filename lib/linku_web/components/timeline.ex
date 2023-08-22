@@ -287,6 +287,31 @@ defmodule LinkuWeb.Timeline do
     """
   end
 
+  defp activity_entry(%{action: "renku_published"} = assigns) do
+    ~H"""
+    <div class="relative pb-32">
+      <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+      <div class="relative flex space-x-3">
+        <div>
+          <span class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
+            <.icon name="hero-check-circle" class="w-5 h-5 text-white" />
+          </span>
+        </div>
+        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+          <div>
+            <p class="text-sm text-gray-500">
+              <%= @entry.performer_text %> published renku "<%= @entry.subject_text %>"
+            </p>
+          </div>
+          <div class="whitespace-nowrap text-right text-sm text-gray-500">
+            <.local_time id={@entry.id} at={@entry.inserted_at} />
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   defp activity_entry(%{action: "renku_deleted"} = assigns) do
     ~H"""
     <div class="relative pb-32">

@@ -10,8 +10,6 @@ defmodule Linku.Notebooks do
   alias Linku.Collaborations.Invitation
   alias Linku.ActivityLog
 
-  @max_lines 1000
-
   @doc """
   Subscribers the given scope to the line pubsub.
 
@@ -563,6 +561,28 @@ defmodule Linku.Notebooks do
   """
   def change_renku(%Renku{} = renku, attrs \\ %{}) do
     Renku.changeset(renku, attrs)
+  end
+
+  def publish_renku(%Scope{} = scope, %Renku{} = renku) do
+    if scope.current_user.id == renku.user_id do
+      renku
+      |> Renku.publish_changeset()
+      |> Repo.update()
+      |> case do
+        {:ok, new_renku} ->
+          log = ActivityLog.log(scope, new_renku, %{
+                action: "renku_published",
+                subject_text: renku.title
+              })
+
+
+          broadcast(scope, %Events.RenkuPublished{renku: renku, log: log})
+          {:ok, new_renku}
+
+        other ->
+          other
+      end
+    end
   end
 
   defp multi_update_all(multi, name, func, opts \\ []) do

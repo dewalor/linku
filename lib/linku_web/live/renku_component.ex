@@ -117,6 +117,12 @@ defmodule LinkuWeb.RenkuComponent do
       >
         New Line
       </.button>
+      <.button
+      phx-click={JS.push("publish", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
+      class="mt-4"
+      >
+      Publish
+      </.button>
     </div>
     """
   end
@@ -209,8 +215,14 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def handle_event("invite", %{"id" => line_id}, socket) do
-    invitation = build_invitation(line_id)
     {:noreply, push_patch(socket, to: ~p"/lines/#{line_id}/invitations/new")}
+  end
+
+  def handle_event("publish", _params, socket) do
+    renku = Notebooks.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
+    Notebooks.publish_renku(socket.assigns.scope, renku)
+
+    {:noreply, socket}
   end
 
   def handle_event("reset", _, socket) do
