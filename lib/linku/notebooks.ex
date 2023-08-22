@@ -281,7 +281,6 @@ defmodule Linku.Notebooks do
   Returns the active renkus for the current scope.
   """
   def active_renkus(%Scope{} = scope, limit) do
-    IO.inspect(scope, label: "SCOPE in active renkus")
     # active_renkus_query should return the following renkus:
     # 1. renkus the current user initiated, if any AND
     # 2. renkus with lines they were invited to read

@@ -23,6 +23,7 @@ defmodule LinkuWeb.RenkuComponent do
         class="grid grid-cols-1 gap-2"
         data-group="lines"
         data-renku_id={@renku_id}
+        data-max_lines={@max_lines}
       >
         <div
           :for={{id, form} <- @streams.lines}
@@ -74,7 +75,7 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-target={@myself}
                 />
                 <.link
-                  :if={form.data.id}
+                  :if={form.data.id && (form.data.position+1) < @max_lines}
                   patch={~p"/lines/#{form.data.id}/invitations/new"}
                   alt="New invitation">
                   <.icon name="hero-pencil-square" />
@@ -138,10 +139,9 @@ defmodule LinkuWeb.RenkuComponent do
 
   def update(%{renku: renku} = assigns, socket) do
     line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
-
     {:ok,
      socket
-     |> assign(renku_id: renku.id, scope: assigns.scope)
+     |> assign(renku_id: renku.id, max_lines: renku.max_lines, scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end
 
@@ -254,15 +254,6 @@ defmodule LinkuWeb.RenkuComponent do
       |> Map.put(:action, action)
 
     to_form(changeset, as: "line", id: "form-#{changeset.data.renku_id}-#{changeset.data.id}")
-  end
-
-  defp to_change_invitation_form(invitation_or_changeset, params, action \\ nil) do
-    changeset =
-      invitation_or_changeset
-      |> Notebooks.change_invitation(params)
-      |> Map.put(:action, action)
-
-    to_form(changeset, as: "invitation", id: "form-#{params[:renku_id]}-#{changeset.data.id}")
   end
 
   defp build_line(renku_id), do: %Line{renku_id: renku_id}

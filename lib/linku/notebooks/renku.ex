@@ -5,6 +5,7 @@ defmodule Linku.Notebooks.Renku do
   schema "renkus" do
     field :title, :string
     field :position, :integer
+    field :max_lines, :integer
 
     has_many :lines, Linku.Notebooks.Line
     belongs_to :user, Linku.Accounts.User
@@ -15,7 +16,7 @@ defmodule Linku.Notebooks.Renku do
   @doc false
   def changeset(renku, attrs) do
     renku
-    |> cast(attrs, [:title])
-    |> validate_required([:title])
+    |> cast(attrs, [:title, :max_lines])
+    |> validate_required([:title, :max_lines])
   end
 end

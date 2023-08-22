@@ -44,6 +44,7 @@ defmodule LinkuWeb.HomeLive do
               module={LinkuWeb.RenkuComponent}
               scope={@scope}
               renku={renku}
+              max_lines={renku.max_lines}
             />
           </div>
         </div>
