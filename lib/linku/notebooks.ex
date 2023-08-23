@@ -7,6 +7,7 @@ defmodule Linku.Notebooks do
   alias Linku.{Repo, Scope, Events}
 
   alias Linku.Notebooks.{Renku, Line, RenkuNotifier}
+  alias Linku.Collaborations
   alias Linku.Collaborations.Invitation
   alias Linku.ActivityLog
 
@@ -83,10 +84,6 @@ defmodule Linku.Notebooks do
 
   def change_line(line_or_changeset, attrs \\ %{}) do
     Line.changeset(line_or_changeset, attrs)
-  end
-
-  def change_invitation(invitation_or_changeset, attrs \\ %{}) do
-    Invitation.changeset(invitation_or_changeset, attrs)
   end
 
   @doc """
@@ -239,17 +236,27 @@ defmodule Linku.Notebooks do
 
   Broadcasts %Events.LineAdded{} on the scoped topic when successful.
   """
-  def create_line(%Scope{} = scope, %Renku{} = renku, params) do
+  def create_line(%Scope{current_user: current_user} = scope, %Renku{} = renku, params) do
     line = %Line{
       user_id: scope.current_user.id,
       status: :started,
       renku_id: renku.id
     }
 
+    open_invitation_for_renku_query = from i in Invitation,
+              join: l in Line,
+              on: l.id == i.line_id,
+              where: l.renku_id == ^renku.id,
+              where: is_nil(i.accepted_at),
+              where: i.invitee_email == ^current_user.email
+
+    invitation = Repo.one!(open_invitation_for_renku_query)
+    invitation_changeset = Collaborations.change_invitation(invitation, %{accepted_at: DateTime.utc_now()})
     Ecto.Multi.new()
     |> Repo.multi_transaction_lock(:renku, renku)
+    |> Ecto.Multi.update(:invitation, invitation_changeset)
     |> Ecto.Multi.run(:position, fn repo, _changes ->
-      position = repo.one(from t in Line, where: t.renku_id == ^renku.id, select: count(t.id))
+      position = repo.one(from l in Line, where: l.renku_id == ^renku.id, select: count(l.id))
 
       {:ok, position}
     end)
@@ -387,9 +394,9 @@ defmodule Linku.Notebooks do
   #    |> union(^renku_initiator_query)
   #    |> union(^invitee_query)
 
-
-    Repo.all(renku_query)
-    |> Repo.preload(lines: {(from s in subquery(lines_query), order_by: s.id), :invitations})
+    renku_query
+      |> Repo.all()
+      |> Repo.preload([lines: {(from s in subquery(lines_query), order_by: s.id), :invitations}])
   end
 
   @doc """

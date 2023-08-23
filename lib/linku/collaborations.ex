@@ -5,7 +5,7 @@ defmodule Linku.Collaborations do
 
   import Ecto.Query, warn: false
   alias Linku.Repo
-
+  alias Linku.Notebooks.Line
   alias Linku.Collaborations.Invitation
 
   @doc """
@@ -38,22 +38,22 @@ defmodule Linku.Collaborations do
   def get_invitation!(id), do: Repo.get!(Invitation, id)
 
   @doc """
-  Gets a single invitation by email.
-
-  Raises `Ecto.NoResultsError` if the Invitation does not exist.
-
-  ## Examples
-
-      iex> get_invitation_by_email("me@example.com")
-      %Invitation{}
-
-      iex> get_invitation_by_email("unknown@example.com")
-      nil
-
+  Whether an email is associated with any invitations.
   """
   def associated_with_invitations?(email) do
     query = from i in Invitation, where: i.invitee_email == ^email
     Repo.exists?(query)
+  end
+
+  @doc """
+  The email of the invitee with an open invitation to compose a line for the renku, if any.
+  There can be at most one open invitation for a renku.
+  Returns nil if the last line of the renku is complete and there are no open invitations.
+  """
+  def current_invitee_email(renku) do
+    #the last line of renku won't have any invitations
+    query = from i in Invitation, select: i.invitee_email, join: l in Line, on: l.id == i.line_id, where: l.renku_id == ^renku.id and is_nil(i.accepted_at)
+    Repo.one(query)
   end
 
   @doc """

@@ -6,6 +6,7 @@ defmodule LinkuWeb.RenkuComponent do
   alias Linku.Events
   alias Linku.Notebooks
   alias Linku.Notebooks.Line
+  alias Linku.Collaborations
   alias Linku.Collaborations.Invitation
 
   def render(assigns) do
@@ -112,12 +113,16 @@ defmodule LinkuWeb.RenkuComponent do
         </div>
       </div>
       <.button
+        :if={
+          assigns.scope.current_user_id == @renku_initiator_id && @line_count == 0
+          || (@current_invitee_email && assigns.scope.current_user.email == @current_invitee_email)}
         phx-click={JS.push("new", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
         class="mt-4"
       >
         New Line
       </.button>
       <.button
+      :if={assigns.scope.current_user_id == @renku_initiator_id && @line_count == @max_lines}
       phx-click={JS.push("publish", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
       class="mt-4"
       >
@@ -151,7 +156,7 @@ defmodule LinkuWeb.RenkuComponent do
     line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
     {:ok,
      socket
-     |> assign(renku_id: renku.id, max_lines: renku.max_lines, line_count: length(renku.lines), scope: assigns.scope)
+     |> assign(renku_id: renku.id, max_lines: renku.max_lines, line_count: length(renku.lines), renku_initiator_id: renku.user_id, current_invitee_email: Collaborations.current_invitee_email(renku), scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end
 
