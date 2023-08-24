@@ -47,20 +47,6 @@ defmodule LinkuWeb.RenkuComponent do
             class="min-w-0 flex-1 drag-ghost:opacity-0"
           >
             <div class="flex">
-              <button
-                :if={form.data.id}
-                type="button"
-                phx-click={JS.push("toggle_complete", target: @myself, value: %{id: form.data.id})}
-                class="w-10"
-              >
-                <.icon
-                  name="hero-check-circle"
-                  class={[
-                    "w-7 h-7",
-                    if(form[:status].value == :completed, do: "bg-green-600", else: "bg-gray-300")
-                  ]}
-                />
-              </button>
               <div class="flex-auto">
                 <input type="hidden" name={form[:status].name} value={form[:status].value} />
                 <.input
@@ -97,16 +83,6 @@ defmodule LinkuWeb.RenkuComponent do
                 </.inputs_for>
 
               </div>
-              <button
-                :if={form.data.id}
-                type="button"
-                phx-click={
-                  JS.push("delete", target: @myself, value: %{id: form.data.id}) |> hide("##{id}")
-                }
-                class="w-10 -mt-1"
-              >
-                <.icon name="hero-x-mark" />
-              </button>
             </div>
           </.simple_form>
         </div>
