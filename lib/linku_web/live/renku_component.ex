@@ -63,7 +63,8 @@ defmodule LinkuWeb.RenkuComponent do
                 />
 
                 <.link
-                  :if={form.data.id
+                  :if={
+                      form.data.id
                       && form.data.position
                       && form.data.position < @max_lines - 1
                       && form.data.position == @line_count - 1
@@ -72,8 +73,12 @@ defmodule LinkuWeb.RenkuComponent do
                   alt="New invitation">
                   <.icon name="hero-pencil-square" />
                 </.link>
-                <.inputs_for :let={form_invitations} field={form[:invitations]}>
-                  <.input type="text"
+                <.inputs_for
+                  :if={@show_invitations}
+                  :let={form_invitations}
+                  field={form[:invitations]}>
+                  <.input
+                    type="text"
                     field={form_invitations[:invitee_email]}
                     placeholder="Email a friend..."
                     phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
@@ -131,7 +136,14 @@ defmodule LinkuWeb.RenkuComponent do
     line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
     {:ok,
      socket
-     |> assign(renku_id: renku.id, max_lines: renku.max_lines, line_count: length(renku.lines), renku_initiator_id: renku.user_id, current_invitee_email: Collaborations.current_invitee_email(renku), scope: assigns.scope)
+     |> assign(
+          renku_id: renku.id,
+          max_lines: renku.max_lines,
+          line_count: length(renku.lines),
+          renku_initiator_id: renku.user_id,
+          current_invitee_email: Collaborations.current_invitee_email(renku),
+          show_invitations: !is_nil(assigns.scope.current_user),
+          scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end
 
