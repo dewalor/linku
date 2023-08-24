@@ -14,13 +14,13 @@
 
 <.back navigate={~p"/invitations"}>Back to invitations</.back>
 
-<.modal :if={@live_action == :edit} id="invitation-modal" show on_cancel={JS.patch(~p"/")}>
+<.modal :if={@live_action == :edit} id="invitation-modal" show on_cancel={JS.patch(~p"/home")}>
   <.live_component
     module={LinkuWeb.InvitationLive.FormComponent}
     id={@invitation.id}
     title={@page_title}
     action={@live_action}
     invitation={@invitation}
-    patch={~p"/"}
+    patch={~p"/home"}
   />
 </.modal>

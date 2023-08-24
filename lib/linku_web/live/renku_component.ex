@@ -74,7 +74,7 @@ defmodule LinkuWeb.RenkuComponent do
                   <.icon name="hero-pencil-square" />
                 </.link>
                 <.inputs_for
-                  :if={@show_invitations}
+                  :if={@display_invitations}
                   :let={form_invitations}
                   field={form[:invitations]}>
                   <.input
@@ -142,7 +142,7 @@ defmodule LinkuWeb.RenkuComponent do
           line_count: length(renku.lines),
           renku_initiator_id: renku.user_id,
           current_invitee_email: Collaborations.current_invitee_email(renku),
-          show_invitations: !is_nil(assigns.scope.current_user),
+          display_invitations: is_nil(renku.published_at),
           scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end

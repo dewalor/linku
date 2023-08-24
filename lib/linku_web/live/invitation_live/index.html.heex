@@ -31,7 +31,7 @@
   </:action>
 </.table>
 
-<.modal :if={@live_action in [:new, :edit]} id="invitation-modal" show on_cancel={JS.patch(~p"/")}>
+<.modal :if={@live_action in [:new, :edit]} id="invitation-modal" show on_cancel={JS.patch(~p"/home")}>
   <.live_component
     module={LinkuWeb.InvitationLive.FormComponent}
     current_user_id={@current_user_id}
@@ -40,6 +40,6 @@
     line_id={@line_id}
     action={@live_action}
     invitation={@invitation}
-    patch={~p"/"}
+    patch={~p"/home"}
   />
 </.modal>

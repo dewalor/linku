@@ -17,7 +17,7 @@ defmodule LinkuWeb.UserRegistrationLiveTest do
         conn
         |> log_in_user(user_fixture())
         |> live(~p"/users/register")
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/home")
 
       assert {:ok, _conn} = result
     end
@@ -45,10 +45,10 @@ defmodule LinkuWeb.UserRegistrationLiveTest do
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
-      assert redirected_to(conn) == ~p"/"
+      assert redirected_to(conn) == ~p"/home"
 
       # Now do a logged in request and assert on the menu
-      conn = get(conn, "/")
+      conn = get(conn, "/home")
       response = html_response(conn, 200)
       assert response =~ email
       assert response =~ "Settings"

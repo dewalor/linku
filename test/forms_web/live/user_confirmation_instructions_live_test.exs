@@ -24,7 +24,7 @@ defmodule LinkuWeb.UserConfirmationInstructionsLiveTest do
         lv
         |> form("#resend_confirmation_form", user: %{email: user.email})
         |> render_submit()
-        |> follow_redirect(conn, ~p"/")
+        |> follow_redirect(conn, ~p"/home")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
                "If your email is in our system"
@@ -41,7 +41,7 @@ defmodule LinkuWeb.UserConfirmationInstructionsLiveTest do
         lv
         |> form("#resend_confirmation_form", user: %{email: user.email})
         |> render_submit()
-        |> follow_redirect(conn, ~p"/")
+        |> follow_redirect(conn, ~p"/home")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
                "If your email is in our system"
@@ -56,7 +56,7 @@ defmodule LinkuWeb.UserConfirmationInstructionsLiveTest do
         lv
         |> form("#resend_confirmation_form", user: %{email: "unknown@example.com"})
         |> render_submit()
-        |> follow_redirect(conn, ~p"/")
+        |> follow_redirect(conn, ~p"/home")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
                "If your email is in our system"

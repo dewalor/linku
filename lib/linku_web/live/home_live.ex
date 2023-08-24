@@ -55,7 +55,7 @@ defmodule LinkuWeb.HomeLive do
       :if={@live_action in [:new_renku, :edit_renku]}
       id="renku-modal"
       show
-      on_cancel={JS.patch(~p"/")}
+      on_cancel={JS.patch(~p"/home")}
     >
       <.live_component
         scope={@scope}
@@ -64,7 +64,7 @@ defmodule LinkuWeb.HomeLive do
         title={@page_title}
         action={@live_action}
         renku={@renku}
-        patch={~p"/"}
+        patch={~p"/home"}
       />
     </.modal>
     """

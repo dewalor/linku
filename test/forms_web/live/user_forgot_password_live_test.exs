@@ -21,7 +21,7 @@ defmodule LinkuWeb.UserForgotPasswordLiveTest do
         conn
         |> log_in_user(user_fixture())
         |> live(~p"/users/reset_password")
-        |> follow_redirect(conn, ~p"/")
+        |> follow_redirect(conn, ~p"/home")
 
       assert {:ok, _conn} = result
     end
@@ -39,7 +39,7 @@ defmodule LinkuWeb.UserForgotPasswordLiveTest do
         lv
         |> form("#reset_password_form", user: %{"email" => user.email})
         |> render_submit()
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/home")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
 
@@ -54,7 +54,7 @@ defmodule LinkuWeb.UserForgotPasswordLiveTest do
         lv
         |> form("#reset_password_form", user: %{"email" => "unknown@example.com"})
         |> render_submit()
-        |> follow_redirect(conn, "/")
+        |> follow_redirect(conn, "/home")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
       assert Repo.all(Accounts.UserToken) == []
