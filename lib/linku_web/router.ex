@@ -32,6 +32,11 @@ defmodule LinkuWeb.Router do
 
       live "/invitations/:key", HomeLive, :dashboard
     end
+
+    live_session :unauthenticated,
+      on_mount: [LinkuWeb.Scope] do
+      live "/renkus/published", JournalLive, :dashboard
+    end
   end
 
   # Other scopes may use custom stacks.

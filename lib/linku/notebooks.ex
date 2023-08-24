@@ -288,11 +288,10 @@ defmodule Linku.Notebooks do
   Returns the active renkus for the current scope.
   """
   def active_renkus(%Scope{} = scope, limit) do
-    # active_renkus_query should return the following renkus:
+    # active_renkus_query should return:
     # 1. renkus the current user initiated, if any AND
     # 2. renkus with lines they were invited to read
 
-#--------------------------------------------------------------------------
     line_invitee_subset =
       from(
         i in Invitation,
@@ -305,7 +304,6 @@ defmodule Linku.Notebooks do
         on: l.renku_id == r.id,
         join: s in subquery(line_invitee_subset),
         on: s.line_id == l.id
-  #      where: exists(subquery(line_invitee_subset))
       )
 
     renku_query =
@@ -315,55 +313,13 @@ defmodule Linku.Notebooks do
         limit: ^limit
       )
       # order_by: [asc: :position]
-#--------------------------------------------------------------------------
 
     # active_renkus_query should return the above renkus with these lines preloaded:
     # 1. if the current user initiated any renkus, they should see all the lines in those renkus AND
     # 2. if the current user were invited to any renkus, they should see all the lines they were invited to read in those renkus AND the lines they wrote
 
-
-
-    # lines_query = from(l in Line,
-    #   join: r in Renku,
-    #   on: l.renku_id==r.id,
-    #   join: i in Invitation,
-    #   on: i.line_id==l.id,
-    #   where: r.user_id==^scope.current_user.id or l.user_id==^scope.current_user.id or i.invitee_email == ^scope.current_user.email,
-    #   limit: @max_lines,
-    #   order_by: [asc: l.position]
-    # )
-
-    # TODO: refactor optional renku query with where exists
-    # `union` queries must be wrapped inside of a subquery when preloading a `has_many` or `many_to_many` association.
-    #  You must also ensure that all members of the `union` query select the parent's foreign key
-
-    # lines_query = case get_renkus_for_user(scope) do
-    #   [] -> from(l in Line,
-    #           where: l.user_id==^scope.current_user.id,
-    #           union: ^invitee_query,
-    #           limit: @max_lines,
-    #           order_by: [asc: l.position]
-    #           )
-    #   _ -> from(l in Line,
-    #           where: l.user_id==^scope.current_user.id,
-    #           union: ^invitee_query,
-    #           union: ^renku_query,
-    #           limit: @max_lines,
-    #           order_by: [asc: l.position]
-    #         )
-    # end
-
-    # inner_query =
-    #   from(l in Line,
-    #   where: l.user_id==^scope.current_user.id,
-    #   union: ^invitee_query,
-    #   limit: @max_lines,
-    #   order_by: [asc: l.position]
-    #   )
-
     renku_initiator_query =
       from(l in Line,
-#      select: [l.id, l.title, l.position, l.renku_id, l.user_id],
         join: r in Renku,
         on: l.renku_id == r.id,
         where: r.user_id == ^scope.current_user.id
@@ -371,32 +327,36 @@ defmodule Linku.Notebooks do
 
     invitee_query =
       from(l in Line,
-#      select: [l.id, l.title, l.position, l.renku_id, l.user_id],
         join: i in Invitation,
         on: i.line_id == l.id,
         where: i.invitee_email == ^scope.current_user.email
       )
-      # join: i in Invitation,
-      # on: i.line_id == l.id,
-      # where: exists(subquery(line_invitee_subset))
 
     lines_query =
       from(
         l in Line,
-#        select: [l.id, l.title, l.position, l.renku_id, l.user_id],
         where: l.user_id == ^scope.current_user.id,
         union: ^renku_initiator_query,
         union: ^invitee_query
-        #where: l.id in subquery(^renku_initiator_query)
-        #or l.id in subquery(^renku_initiator_query) or l.id in subquery(^invitee_query)
       )
-
-  #    |> union(^renku_initiator_query)
-  #    |> union(^invitee_query)
 
     renku_query
       |> Repo.all()
       |> Repo.preload([lines: {(from s in subquery(lines_query), order_by: s.id), :invitations}])
+  end
+
+  @doc """
+    returns a list of published renkus
+  """
+  def published_renkus() do
+    renku_query =
+      from r in Renku,
+        where: not is_nil(r.published_at),
+        order_by: [asc: :position]
+
+    renku_query
+      |> Repo.all()
+      |> Repo.preload(:lines)
   end
 
   @doc """

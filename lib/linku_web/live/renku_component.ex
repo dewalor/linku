@@ -7,7 +7,6 @@ defmodule LinkuWeb.RenkuComponent do
   alias Linku.Notebooks
   alias Linku.Notebooks.Line
   alias Linku.Collaborations
-  alias Linku.Collaborations.Invitation
 
   def render(assigns) do
     #   <.live_component
@@ -115,7 +114,7 @@ defmodule LinkuWeb.RenkuComponent do
       <.button
         :if={
           assigns.scope.current_user_id == @renku_initiator_id && @line_count == 0
-          || (@current_invitee_email && assigns.scope.current_user.email == @current_invitee_email)}
+          || assigns.scope.current_user && (@current_invitee_email && assigns.scope.current_user.email == @current_invitee_email)}
         phx-click={JS.push("new", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
         class="mt-4"
       >
@@ -278,6 +277,4 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   defp build_line(renku_id), do: %Line{renku_id: renku_id}
-
-  defp build_invitation(line_id), do: %Invitation{line_id: line_id}
 end
