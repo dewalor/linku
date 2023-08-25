@@ -11,13 +11,13 @@ defmodule LinkuWeb.JournalLive do
       </.header>
       <div
         id="renkus"
-        class="grid sm:grid-cols-1 md:grid-cols-3 gap-2"
+        class="grid grid-cols-1"
       >
         <div
           :for={{id, renku} <- @streams.renkus}
           id={id}
           data-id={renku.id}
-          class="bg-gray-100 py-4 rounded-lg"
+          class="bg-gray-100 py-4 rounded-lg my-4"
         >
           <div class="mx-auto max-w-7xl px-4 space-y-4">
             <.header>
