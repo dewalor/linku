@@ -7,9 +7,9 @@ alias Linku.{Accounts, Notebooks, Scope}
   })
 
 scope = Scope.for_user(user)
-{:ok, home} = Notebooks.create_renku(scope, %{title: "Home"})
-{:ok, personal} = Notebooks.create_renku(scope, %{title: "Personal"})
-{:ok, social} = Notebooks.create_renku(scope, %{title: "Social/Professional"})
+{:ok, home} = Notebooks.create_renku(scope, %{title: "Home", max_lines: 40})
+{:ok, personal} = Notebooks.create_renku(scope, %{title: "Personal", max_lines: 40})
+{:ok, social} = Notebooks.create_renku(scope, %{title: "Social/Professional", max_lines: 40})
 
 # Personal
 [

@@ -61,11 +61,9 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
                 />
-
                 <.link
                   :if={
-                      form.data.id
-                      && form.data.position
+                      (@display_invitation_pencil || form.data.id)
                       && form.data.position < @max_lines - 1
                       && form.data.position == @line_count - 1
                       }
@@ -121,7 +119,8 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def update(%{event: %Events.LineAdded{line: line}}, socket) do
-    {:ok, stream_insert(socket, :lines, to_change_form(line, %{}))}
+    #if a line was just added and
+    {:ok, stream_insert(assign(socket, display_invitation_pencil: true), :lines, to_change_form(line, %{}))}
   end
 
   def update(%{event: %Events.LineUpdated{line: line}}, socket) do
@@ -142,10 +141,12 @@ defmodule LinkuWeb.RenkuComponent do
      socket
      |> assign(
           renku: renku,
+          renku_id: renku.id,
           max_lines: renku.max_lines,
-          line_count: length(renku.lines),
+          line_count: Notebooks.line_count_for_renku(renku),
           renku_initiator_id: renku.user_id,
           current_invitee_email: Collaborations.current_invitee_email(renku),
+          display_invitation_pencil: false,
           display_invitations: is_nil(renku.published_at),
           scope: assigns.scope)
      |> stream(:lines, line_forms)}
@@ -174,8 +175,10 @@ defmodule LinkuWeb.RenkuComponent do
 
   def handle_event("save", %{"line" => params}, socket) do
     #get the renku if the user is allowed to add a line to it. i.e. initiated or has been invited to it
-    renku = Notebooks.get_renku_if_allowed_to_write!(socket.assigns.scope, socket.assigns.renku_id)
-    renku = Repo.preload(renku, :user)
+    renku =
+      socket.assigns.renku_id
+      |> Notebooks.get_renku_if_allowed_to_write!(socket.assigns.scope)
+      |> Repo.preload(:user)
 
     case Notebooks.create_line(socket.assigns.scope, renku, params) do
       {:ok, new_line} ->

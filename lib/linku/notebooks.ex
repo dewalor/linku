@@ -231,6 +231,14 @@ defmodule Linku.Notebooks do
     end
   end
 
+  def line_count_for_renku(renku) do
+    query = from l in Line, select: count(l.id), where: l.renku_id==^renku.id
+
+    query
+      |> Repo.all()
+      |> List.first()
+  end
+
   @doc """
   Creates a line for the current scope.
 
@@ -243,18 +251,9 @@ defmodule Linku.Notebooks do
       renku_id: renku.id
     }
 
-    open_invitation_for_renku_query = from i in Invitation,
-              join: l in Line,
-              on: l.id == i.line_id,
-              where: l.renku_id == ^renku.id,
-              where: is_nil(i.accepted_at),
-              where: i.invitee_email == ^current_user.email
-
-    invitation = Repo.one!(open_invitation_for_renku_query)
-    invitation_changeset = Collaborations.change_invitation(invitation, %{accepted_at: DateTime.utc_now()})
     Ecto.Multi.new()
     |> Repo.multi_transaction_lock(:renku, renku)
-    |> Ecto.Multi.update(:invitation, invitation_changeset)
+    |> update_invitation_if_any(renku, current_user)
     |> Ecto.Multi.run(:position, fn repo, _changes ->
       position = repo.one(from l in Line, where: l.renku_id == ^renku.id, select: count(l.id))
 
@@ -275,6 +274,7 @@ defmodule Linku.Notebooks do
 
         broadcast(scope, %Events.LineAdded{line: line, log: log})
         line = Repo.preload(line, :user)
+        renku = Repo.preload(renku, :user)
         RenkuNotifier.deliver_renku_completion_notification(renku.user, line.user, renku)
 
         {:ok, line}
@@ -395,7 +395,7 @@ defmodule Linku.Notebooks do
 
   Raises `Ecto.NoResultsError` if the ownership or invitation association or the given renku does not exist.
   """
-  def get_renku_if_allowed_to_write!(%Scope{} = scope, id) do
+  def get_renku_if_allowed_to_write!(id, %Scope{} = scope) do
     line_invitee_subset =
       from(
         i in Invitation,
@@ -607,6 +607,23 @@ defmodule Linku.Notebooks do
         update: [inc: [position: -1]]
       )
     end)
+  end
+
+  defp update_invitation_if_any(multi, renku, current_user) do
+    if (current_user.id == renku.user_id) do
+      multi
+    else
+      open_invitation_for_renku_query = from i in Invitation,
+      join: l in Line,
+      on: l.id == i.line_id,
+      where: l.renku_id == ^renku.id,
+      where: is_nil(i.accepted_at),
+      where: i.invitee_email == ^current_user.email
+
+      invitation = Repo.one!(open_invitation_for_renku_query)
+      invitation_changeset = Collaborations.change_invitation(invitation, %{accepted_at: DateTime.utc_now()})
+      Ecto.Multi.update(multi, :invitation, invitation_changeset)
+    end
   end
 
   def test(to, %Scope{} = _scope) do
