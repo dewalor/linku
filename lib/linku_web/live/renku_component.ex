@@ -18,12 +18,12 @@ defmodule LinkuWeb.RenkuComponent do
     ~H"""
     <div>
       <div
-        id={"lines-#{@renku_id}"}
+        id={"lines-#{@renku.id}"}
         phx-update="stream"
         phx-hook="Sortable"
         class="grid grid-cols-1 gap-2"
         data-group="lines"
-        data-renku_id={@renku_id}
+        data-renku_id={@renku.id}
         data-max_lines={@max_lines}
       >
         <div
@@ -96,14 +96,18 @@ defmodule LinkuWeb.RenkuComponent do
         :if={
           assigns.scope.current_user_id == @renku_initiator_id && @line_count == 0
           || assigns.scope.current_user && (@current_invitee_email && assigns.scope.current_user.email == @current_invitee_email)}
-        phx-click={JS.push("new", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
+        phx-click={JS.push("new", value: %{at: -1, renku_id: @renku.id}, target: @myself)}
         class="mt-4"
       >
         New Line
       </.button>
       <.button
-      :if={assigns.scope.current_user_id == @renku_initiator_id && @line_count == @max_lines}
-      phx-click={JS.push("publish", value: %{at: -1, renku_id: @renku_id}, target: @myself)}
+      :if={
+        assigns.scope.current_user_id == @renku_initiator_id
+        && @line_count == @max_lines
+        && is_nil(@renku.published_at)
+      }
+      phx-click={JS.push("publish", value: %{at: -1, renku_id: @renku.id}, target: @myself)}
       class="mt-4"
       >
       Publish
@@ -137,7 +141,7 @@ defmodule LinkuWeb.RenkuComponent do
     {:ok,
      socket
      |> assign(
-          renku_id: renku.id,
+          renku: renku,
           max_lines: renku.max_lines,
           line_count: length(renku.lines),
           renku_initiator_id: renku.user_id,
