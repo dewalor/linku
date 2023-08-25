@@ -11,8 +11,6 @@ defmodule LinkuWeb.JournalLive do
       </.header>
       <div
         id="renkus"
-        phx-update="stream"
-        phx-hook="Sortable"
         class="grid sm:grid-cols-1 md:grid-cols-3 gap-2"
       >
         <div
@@ -25,12 +23,27 @@ defmodule LinkuWeb.JournalLive do
             <.header>
               <%= renku.title %>
             </.header>
-            <.live_component
-              id={renku.id}
-              module={LinkuWeb.RenkuComponent}
-              scope={@scope}
-              renku={renku}
-            />
+            <div>
+              <div
+                id={"lines-#{renku.id}"}
+                class="grid grid-cols-1 gap-2"
+              >
+                <div
+                  :for={line <- renku.lines}
+                  id={id}
+                  data-renku_id={renku.id}
+                  class="
+                  relative flex items-center space-x-3
+                  "
+                >
+                    <div class="flex">
+                      <div class="flex-auto">
+                        <%= line.title %>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
