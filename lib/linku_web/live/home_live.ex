@@ -6,6 +6,11 @@ defmodule LinkuWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
+    <ul class="relative z-10 flex items-center gap-4 justify-start -ml-64 -mt-16 mb-20">
+        <li>
+        <.back navigate={~p"/"}>Renku Feed</.back>
+        </li>
+    </ul>
     <div id="home" class="space-y-5">
       <.header>
         Your Renkus
@@ -84,7 +89,7 @@ defmodule LinkuWeb.HomeLive do
      |> paginate_logs(1)}
   end
 
-  def handle_params(params, _uri, socket) do
+  def handle_params(params, uri, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 

@@ -35,7 +35,7 @@ defmodule LinkuWeb.Router do
 
     live_session :unauthenticated,
       on_mount: [LinkuWeb.Scope] do
-      live "/", JournalLive, :dashboard
+      live "/", JournalLive, :index
     end
   end
 

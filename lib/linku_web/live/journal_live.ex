@@ -1,13 +1,21 @@
 defmodule LinkuWeb.JournalLive do
   use LinkuWeb, :live_view
 
-  alias Linku.{Events, Notebooks}
+  alias Linku.{Events, Notebooks, Accounts, Accounts.User}
 
   def render(assigns) do
     ~H"""
-    <div id="home" class="space-y-5">
+    <ul class="relative z-10 flex items-center gap-4 justify-start -ml-64 -mt-16 mb-20">
+      <%= if @current_user do %>
+
+        <li>
+        <.back navigate={~p"/home"}>Back to Dashboard</.back>
+        </li>
+      <% end %>
+    </ul>
+    <div id="feed" class="space-y-5">
       <.header>
-        Published Renkus
+        Renku Feed
       </.header>
       <div
         id="renkus"
@@ -51,12 +59,28 @@ defmodule LinkuWeb.JournalLive do
     """
   end
 
-  def mount(_params, _session, socket) do
-    renkus = Notebooks.published_renkus()
+  def mount(_params, session, socket) do
+    current_user = with %{"user_token" => token} <- session do
+      Accounts.get_user_by_session_token(token)
+    else
+      _ -> nil
+    end
 
+    renkus = Notebooks.published_renkus()
     {:ok,
      socket
+     |> assign(current_user: current_user)
      |> stream(:renkus, renkus)}
+  end
+
+  def handle_params(params, uri, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  defp apply_action(socket, :index, _params) do
+    socket
+    |> assign(:page_title, "Linku Renku Feed")
+    |> assign(:renku, nil)
   end
 
   def handle_info({Linku.Notebooks, %Events.RenkuUpdated{renku: renku}}, socket) do
