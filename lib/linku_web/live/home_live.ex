@@ -35,6 +35,9 @@ defmodule LinkuWeb.HomeLive do
           <div class="mx-auto max-w-7xl px-4 space-y-4">
             <.header>
               <%= renku.title %>
+              <div class="text-gray-400">
+                <%= if renku.published_at, do: "Published" %>
+              </div>
               <:actions>
                 <.link patch={~p"/renkus/#{renku}/edit"} alt="Edit renku">
                   <.icon name="hero-pencil-square" />

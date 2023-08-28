@@ -1,7 +1,7 @@
 defmodule LinkuWeb.JournalLive do
   use LinkuWeb, :live_view
 
-  alias Linku.{Events, Notebooks, Accounts, Accounts.User}
+  alias Linku.{Events, Notebooks, Accounts}
 
   def render(assigns) do
     ~H"""

@@ -63,7 +63,7 @@ defmodule LinkuWeb.RenkuComponent do
                 />
                 <.link
                   :if={
-                      (@display_invitation_pencil || form.data.id)
+                      @display_invitations && (@display_invitation_pencil || form.data.id)
                       && form.data.position < @max_lines - 1
                       && form.data.position == @line_count - 1
                       }
