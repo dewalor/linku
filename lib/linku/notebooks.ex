@@ -610,9 +610,6 @@ defmodule Linku.Notebooks do
   end
 
   defp update_invitation_if_any(multi, renku, current_user) do
-    if (current_user.id == renku.user_id) do
-      multi
-    else
       open_invitation_for_renku_query = from i in Invitation,
       join: l in Line,
       on: l.id == i.line_id,
@@ -620,10 +617,15 @@ defmodule Linku.Notebooks do
       where: is_nil(i.accepted_at),
       where: i.invitee_email == ^current_user.email
 
-      invitation = Repo.one!(open_invitation_for_renku_query)
-      invitation_changeset = Collaborations.change_invitation(invitation, %{accepted_at: DateTime.utc_now()})
-      Ecto.Multi.update(multi, :invitation, invitation_changeset)
-    end
+      invitation = Repo.one(open_invitation_for_renku_query)
+      cond do
+        invitation ->
+          invitation_changeset = Collaborations.change_invitation(invitation, %{accepted_at: DateTime.utc_now()})
+          Ecto.Multi.update(multi, :invitation, invitation_changeset)
+        current_user.id == renku.user_id -> multi
+        true -> raise "Current user with id #{current_user.id} should be the initiator of the renku or have exactly one open invitation."
+
+      end
   end
 
   def test(to, %Scope{} = _scope) do
