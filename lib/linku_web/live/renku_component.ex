@@ -17,8 +17,14 @@ defmodule LinkuWeb.RenkuComponent do
     # />
     ~H"""
     <div>
+      <div class="space-x-3 py-5"
+      :if={@line_count == @max_lines}
+      >
+        Congrats!  This renku has reached its max length and can now be published.
+      </div>
       <div
         id={"lines-#{@renku.id}"}
+        :if={@renku.user_id == assigns.scope.current_user.id || @line_count < @max_lines}
         phx-update="stream"
         phx-hook="Sortable"
         class="grid grid-cols-1 gap-2"
@@ -50,7 +56,6 @@ defmodule LinkuWeb.RenkuComponent do
               <div class="flex-auto">
                 <input type="hidden" name={form[:status].name} value={form[:status].value} />
                 <.input
-                  :if={!(@line_count == @max_lines)}
                   type="text"
                   field={form[:title]}
                   border={false}
@@ -62,30 +67,34 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
                 />
-                
-                  <.link
-                    :if={
-                        @display_invitations && (@display_invitation_pencil || form.data.id)
-                        && form.data.position < @max_lines - 1
-                        && form.data.position == @line_count - 1
-                        }
-                    patch={~p"/lines/#{form.data.id}/invitations/new"}
-                    alt="New invitation">
-                    <.icon name="hero-pencil-square" />
-                  </.link>
-                  <.inputs_for
-                    :let={form_invitations}
-                    :if={@display_invitations}
-                    field={form[:invitations]}>
-                    <.input
-                      type="text"
-                      field={form_invitations[:invitee_email]}
-                      placeholder="Email a friend..."
-                      phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
-                      phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
-                      phx-target={@myself}
-                    />
-                  </.inputs_for>
+                <!-- only display the invitation section if current user is the author of the line -->
+                  <div
+                   :if={!form.data.id || (form.data.id && assigns.scope.current_user.id == form.data.user_id)}
+                  >
+                    <.link
+                      :if={
+                          @display_invitations && (@display_invitation_pencil || form.data.id)
+                          && form.data.position < @max_lines - 1
+                          && form.data.position == @line_count - 1
+                          }
+                      patch={~p"/lines/#{form.data.id}/invitations/new"}
+                      alt="New invitation">
+                      <.icon name="hero-pencil-square" />
+                    </.link>
+                    <.inputs_for
+                      :let={form_invitations}
+                      :if={@display_invitations}
+                      field={form[:invitations]}>
+                      <.input
+                        type="text"
+                        field={form_invitations[:invitee_email]}
+                        placeholder="Email a friend..."
+                        phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
+                        phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
+                        phx-target={@myself}
+                      />
+                    </.inputs_for>
+                  </div>
 
               </div>
             </div>
@@ -121,8 +130,12 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def update(%{event: %Events.LineAdded{line: line}}, socket) do
-    #if a line was just added and
-    {:ok, stream_insert(assign(socket, display_invitation_pencil: true), :lines, to_change_form(line, %{}))}
+    socket = if line.position < socket.assigns.max_lines-1 do
+      stream_insert(assign(socket, display_invitation_pencil: true), :lines, to_change_form(line, %{}))
+    else
+      socket
+    end
+    {:ok, socket}
   end
 
   def update(%{event: %Events.LineUpdated{line: line}}, socket) do
