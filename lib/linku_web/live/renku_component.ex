@@ -50,6 +50,7 @@ defmodule LinkuWeb.RenkuComponent do
               <div class="flex-auto">
                 <input type="hidden" name={form[:status].name} value={form[:status].value} />
                 <.input
+                  :if={!(@line_count == @max_lines)}
                   type="text"
                   field={form[:title]}
                   border={false}
@@ -61,29 +62,30 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
                 />
-                <.link
-                  :if={
-                      @display_invitations && (@display_invitation_pencil || form.data.id)
-                      && form.data.position < @max_lines - 1
-                      && form.data.position == @line_count - 1
-                      }
-                  patch={~p"/lines/#{form.data.id}/invitations/new"}
-                  alt="New invitation">
-                  <.icon name="hero-pencil-square" />
-                </.link>
-                <.inputs_for
-                  :if={@display_invitations}
-                  :let={form_invitations}
-                  field={form[:invitations]}>
-                  <.input
-                    type="text"
-                    field={form_invitations[:invitee_email]}
-                    placeholder="Email a friend..."
-                    phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
-                    phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
-                    phx-target={@myself}
-                  />
-                </.inputs_for>
+                
+                  <.link
+                    :if={
+                        @display_invitations && (@display_invitation_pencil || form.data.id)
+                        && form.data.position < @max_lines - 1
+                        && form.data.position == @line_count - 1
+                        }
+                    patch={~p"/lines/#{form.data.id}/invitations/new"}
+                    alt="New invitation">
+                    <.icon name="hero-pencil-square" />
+                  </.link>
+                  <.inputs_for
+                    :let={form_invitations}
+                    :if={@display_invitations}
+                    field={form[:invitations]}>
+                    <.input
+                      type="text"
+                      field={form_invitations[:invitee_email]}
+                      placeholder="Email a friend..."
+                      phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
+                      phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
+                      phx-target={@myself}
+                    />
+                  </.inputs_for>
 
               </div>
             </div>
@@ -136,6 +138,7 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def update(%{renku: renku} = assigns, socket) do
+    renku = Repo.preload(renku, :lines)
     line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
     {:ok,
      socket

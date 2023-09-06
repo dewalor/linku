@@ -8,7 +8,7 @@ defmodule Linku.Collaborations.InvitationNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Forms", "contact@example.com"})
+      |> from({"Linku Renku", "contact@example.com"})
       |> subject(subject)
       |> text_body(body)
 

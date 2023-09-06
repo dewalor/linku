@@ -14,9 +14,6 @@ defmodule LinkuWeb.JournalLive do
       <% end %>
     </ul>
     <div id="feed" class="space-y-5">
-      <.header>
-        Renku Feed
-      </.header>
       <div
         id="renkus"
         class="grid grid-cols-1"

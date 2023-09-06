@@ -2,7 +2,7 @@ alias Linku.{Accounts, Notebooks, Scope, Collaborations}
 
 {:ok, user} =
   Accounts.register_user(%{
-    email: "george@example.com",
+    email: "howard@example.com",
     password: "contrasena123"
   })
 
@@ -73,6 +73,11 @@ someone_lines
     Accounts.register_user(%{
      email: "basho@example.com",
      password: "contrasena123"
+    })
+
+  Accounts.register_user(%{
+      email: "user@example.com",
+      password: "password password"
     })
 
   scope_3 = Scope.for_user(user_3)

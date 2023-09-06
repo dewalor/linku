@@ -1,7 +1,7 @@
 defmodule LinkuWeb.HomeLive do
   use LinkuWeb, :live_view
 
-  alias Linku.{Events, Notebooks, ActivityLog}
+  alias Linku.{Repo, Events, Notebooks, ActivityLog}
   alias LinkuWeb.Timeline
 
   def render(assigns) do
@@ -40,7 +40,10 @@ defmodule LinkuWeb.HomeLive do
               </div>
               <:actions>
                 <.link patch={~p"/renkus/#{renku}/edit"} alt="Edit renku">
-                  <.icon name="hero-pencil-square" />
+                  <.icon
+                    :if={@scope.current_user_id==renku.user_id}
+                    name="hero-pencil-square"
+                  />
                 </.link>
                 <.link phx-click="delete-renku" phx-value-id={renku.id} alt="delete renku" data-confirm="Are you sure?">
                   <.icon name="hero-x-mark" />
@@ -92,7 +95,7 @@ defmodule LinkuWeb.HomeLive do
      |> paginate_logs(1)}
   end
 
-  def handle_params(params, uri, socket) do
+  def handle_params(params, _uri, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
@@ -144,7 +147,11 @@ defmodule LinkuWeb.HomeLive do
 
   def handle_info({Linku.Notebooks, %_event{line: line} = event}, socket) do
     send_update(LinkuWeb.RenkuComponent, id: line.renku_id, event: event)
-    {:noreply, stream_new_log(socket, event)}
+    line = Repo.preload(line, :renku)
+    {:noreply,
+      socket
+      |> stream_insert(:renkus, line.renku)
+      |> stream_new_log(event)}
   end
 
   def handle_info({Linku.Notebooks, %Events.RenkuRepositioned{renku: renku} = event}, socket) do
