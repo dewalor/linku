@@ -60,6 +60,7 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0},
       port: 8080
     ],
+    check_origin: ["https://linku.fly.dev", "//*.fly.dev"],
     secret_key_base: secret_key_base
 
   # ## SSL Support
