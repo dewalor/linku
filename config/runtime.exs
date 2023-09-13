@@ -48,6 +48,18 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
+  aws_access_key =
+    System.get_env("AWS_ACCESS_KEY") ||
+      raise """
+      environment variable AWS_ACCESS_KEY is missing.
+      """
+
+  aws_secret_key =
+    System.get_env("AWS_SECRET_KEY") ||
+      raise """
+      environment variable AWS_SECRET_KEY is missing.
+      """
+
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
@@ -62,6 +74,12 @@ if config_env() == :prod do
     ],
     check_origin: ["https://linku.fly.dev"],
     secret_key_base: secret_key_base
+
+  config :linku, Linku.Mailer,
+    adapter: Swoosh.Adapters.AmazonSES,
+    region: "us-east-2",
+    access_key: aws_access_key,
+    secret: aws_secret_key
 
   # ## SSL Support
   #

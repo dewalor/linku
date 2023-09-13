@@ -9,7 +9,7 @@ defmodule Linku.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"Linku Renku", "contact@example.com"})
+      |> from({"Linku Renku", "dewalor@proton.me"})
       |> subject(subject)
       |> text_body(body)
 
