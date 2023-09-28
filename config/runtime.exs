@@ -60,7 +60,7 @@ if config_env() == :prod do
       environment variable AWS_SECRET_KEY is missing.
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  host = System.get_env("PHX_HOST") || "renku.earth"
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :linku, LinkuWeb.Endpoint,
@@ -72,7 +72,7 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0},
       port: 8080
     ],
-    check_origin: ["https://linku.fly.dev"],
+    check_origin: :conn,
     secret_key_base: secret_key_base
 
   config :linku, Linku.Mailer,
