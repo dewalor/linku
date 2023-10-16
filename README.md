@@ -1,2 +1,2 @@
 #Linku
-An application for creating collaborating poems.
+An application for creating renku/linked verse, collaborative poetry.
