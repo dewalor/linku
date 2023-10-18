@@ -21,6 +21,7 @@ defmodule Linku.Collaborations do
     Repo.all(Invitation)
   end
 
+  @spec get_invitation!(any()) :: any()
   @doc """
   Gets a single invitation.
 

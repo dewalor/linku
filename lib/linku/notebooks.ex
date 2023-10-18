@@ -316,7 +316,7 @@ defmodule Linku.Notebooks do
 
     # active_renkus_query should return the above renkus with these lines preloaded:
     # 1. if the current user initiated any renkus, they should see all the lines in those renkus AND
-    # 2. if the current user were invited to any renkus, they should see all the lines they were invited to read in those renkus AND the lines they wrote
+    # 2. if the current user was invited to any renkus, they should see all the lines they were invited to read in those renkus AND the lines they wrote
 
     renku_initiator_query =
       from(l in Line,
