@@ -5,6 +5,11 @@ alias Linku.{Accounts, Notebooks, Scope, Collaborations}
    password: "contrasena123"
   })
 
+  Accounts.register_user(%{
+    email: "wailee@example.com",
+    password: "contrasena123"
+  })
+
   {:ok, user_1} =
     Accounts.register_user(%{
       email: "iugen@example.com",

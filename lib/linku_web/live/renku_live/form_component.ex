@@ -20,7 +20,7 @@ defmodule LinkuWeb.RenkuLive.FormComponent do
         </div>
 
         <div class="space-y-4 mb-6">
-        <.input field={@form[:max_lines]} type="text" placeholder="Enter the maximum number of lines for your renku here." />
+        <.input field={@form[:max_lines]} type="text" placeholder="Enter the maximum number of lines for the entire renku here." />
       </div>
 
         <:actions>

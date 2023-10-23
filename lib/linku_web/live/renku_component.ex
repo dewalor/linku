@@ -18,7 +18,7 @@ defmodule LinkuWeb.RenkuComponent do
     ~H"""
     <div>
       <div class="space-x-3 py-5"
-      :if={@line_count == @max_lines}
+      :if={@line_count == @max_lines and !@renku.published_at}
       >
         Congrats!  This renku has reached its max length and can now be published.
       </div>
