@@ -38,10 +38,6 @@ defmodule Linku.Events do
     defstruct renku: nil, log: nil
   end
 
-  defmodule LineToggled do
-    defstruct line: nil, log: nil
-  end
-
   defmodule RenkuDeleted do
     defstruct renku: nil, log: nil
   end

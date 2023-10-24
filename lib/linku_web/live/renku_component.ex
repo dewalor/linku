@@ -17,11 +17,6 @@ defmodule LinkuWeb.RenkuComponent do
     # />
     ~H"""
     <div>
-      <div class="space-x-3 py-5"
-      :if={@line_count == @max_lines and !@renku.published_at}
-      >
-        Congrats!  This renku has reached its max length and can now be published.
-      </div>
       <div
         id={"lines-#{@renku.id}"}
         :if={@renku.user_id == assigns.scope.current_user.id || @line_count < @max_lines}
@@ -32,6 +27,11 @@ defmodule LinkuWeb.RenkuComponent do
         data-renku_id={@renku.id}
         data-max_lines={@max_lines}
       >
+        <div class="space-x-3 py-5"
+        :if={!@renku.published_at and @line_count == @max_lines}
+        >
+          Congrats!  This renku has reached its max length and can now be published.
+        </div>
         <div
           :for={{id, form} <- @streams.lines}
           id={id}
@@ -52,14 +52,15 @@ defmodule LinkuWeb.RenkuComponent do
             phx-target={@myself}
             class="min-w-0 flex-1 drag-ghost:opacity-0"
           >
+
             <div class="flex">
               <div class="flex-auto">
                 <input type="hidden" name={form[:status].name} value={form[:status].value} />
                 <.input
+                  :if={form.data.id || @show_new_line}
                   type="text"
                   field={form[:title]}
                   border={false}
-                  strike_through={form[:status].value == :completed}
                   placeholder="New line..."
                   phx-mounted={!form.data.id && JS.focus()}
                   phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
@@ -103,7 +104,7 @@ defmodule LinkuWeb.RenkuComponent do
       </div>
       <.button
         :if={
-          assigns.scope.current_user_id == @renku_initiator_id && @line_count == 0
+          assigns.scope.current_user_id == @renku_initiator_id && (@line_count == 0 || @line_count < @max_lines)
           || assigns.scope.current_user && (@current_invitee_email && assigns.scope.current_user.email == @current_invitee_email)}
         phx-click={JS.push("new", value: %{at: -1, renku_id: @renku.id}, target: @myself)}
         class="mt-4"
@@ -125,15 +126,11 @@ defmodule LinkuWeb.RenkuComponent do
     """
   end
 
-  def update(%{event: %Events.LineToggled{line: line}}, socket) do
-    {:ok, stream_insert(socket, :lines, to_change_form(line, %{}))}
-  end
-
   def update(%{event: %Events.LineAdded{line: line}}, socket) do
     socket = if line.position < socket.assigns.max_lines-1 do
       stream_insert(assign(socket, display_invitation_pencil: true), :lines, to_change_form(line, %{}))
     else
-      socket
+      assign(socket, show_new_line: false)
     end
     {:ok, socket}
   end
@@ -153,17 +150,20 @@ defmodule LinkuWeb.RenkuComponent do
   def update(%{renku: renku} = assigns, socket) do
     renku = Repo.preload(renku, :lines)
     line_forms = Enum.map(renku.lines, &to_change_form(&1, %{}))
+    max_lines = renku.max_lines
+    line_count = Notebooks.line_count_for_renku(renku)
     {:ok,
      socket
      |> assign(
           renku: renku,
           renku_id: renku.id,
-          max_lines: renku.max_lines,
-          line_count: Notebooks.line_count_for_renku(renku),
+          max_lines: max_lines,
+          line_count: line_count,
           renku_initiator_id: renku.user_id,
           current_invitee_email: Collaborations.current_invitee_email(renku),
           display_invitation_pencil: false,
           display_invitations: is_nil(renku.published_at),
+          show_new_line: line_count < max_lines,
           scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end
@@ -196,6 +196,8 @@ defmodule LinkuWeb.RenkuComponent do
       |> Notebooks.get_renku_if_allowed_to_write!(socket.assigns.scope)
       |> Repo.preload(:user)
 
+    max_lines = renku.max_lines
+    line_count = Notebooks.line_count_for_renku(renku)
     case Notebooks.create_line(socket.assigns.scope, renku, params) do
       {:ok, new_line} ->
         empty_form = to_change_form(build_line(socket.assigns.renku_id), %{})
@@ -203,7 +205,7 @@ defmodule LinkuWeb.RenkuComponent do
          socket
          |> stream_insert(:lines, to_change_form(new_line, %{}))
          |> stream_delete(:lines, empty_form)
-         |> stream_insert(:lines, empty_form)}
+         |> maybe_insert_empty_form(line_count, max_lines, empty_form)}
 
       {:error, changeset} ->
         {:noreply, stream_insert(socket, :lines, to_change_form(changeset, params, :insert))}
@@ -288,4 +290,12 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   defp build_line(renku_id), do: %Line{renku_id: renku_id}
+
+  defp maybe_insert_empty_form(socket, line_count, max_lines, empty_form) do
+    socket = case line_count + 1 do
+      low when low < max_lines -> stream_insert(socket, :lines, empty_form)
+      _ -> socket
+    end
+    socket
+  end
 end

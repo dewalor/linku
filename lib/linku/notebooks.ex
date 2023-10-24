@@ -167,35 +167,6 @@ defmodule Linku.Notebooks do
     end
   end
 
-  @doc """
-  Toggles a line status for the current scope.
-
-  Broadcasts %Events.LineToggled{} on the scoped topic when successful.
-  """
-  def toggle_complete(%Scope{} = scope, %Line{} = line) do
-    new_status =
-      case line.status do
-        :completed -> :started
-        :started -> :completed
-      end
-
-    query = from(t in Line, where: t.id == ^line.id and t.user_id == ^scope.current_user.id)
-    {1, _} = Repo.update_all(query, set: [status: new_status])
-    new_line = %Line{line | status: new_status}
-
-    log =
-      ActivityLog.log(scope, new_line, %{
-        action: "line_toggled",
-        subject_text: line.title,
-        before_text: line.status,
-        after_text: new_status
-      })
-
-    broadcast(scope, %Events.LineToggled{line: new_line, log: log})
-
-    {:ok, new_line}
-  end
-
   def get_line!(%Scope{} = scope, id) do
     from(t in Line, where: t.id == ^id and t.user_id == ^scope.current_user.id)
     |> Repo.one!()
