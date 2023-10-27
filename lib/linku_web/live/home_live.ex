@@ -30,7 +30,7 @@ defmodule LinkuWeb.HomeLive do
           :for={{id, renku} <- @streams.renkus}
           id={id}
           data-id={renku.id}
-          class="bg-gray-100 py-4 rounded-lg my-4"
+          class="bg-slate-50 py-4 rounded-lg my-4"
         >
           <div class="mx-auto max-w-7xl px-4 space-y-4">
             <.header>

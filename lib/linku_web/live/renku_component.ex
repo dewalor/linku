@@ -69,7 +69,7 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-target={@myself}
                 />
                 <!-- only display the invitation section if current user is the author of the line -->
-                  <div
+                  <div class="bg-white"
                    :if={!form.data.id || (form.data.id && assigns.scope.current_user.id == form.data.user_id)}
                   >
                     <.link
