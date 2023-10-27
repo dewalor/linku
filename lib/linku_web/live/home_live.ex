@@ -55,7 +55,6 @@ defmodule LinkuWeb.HomeLive do
               module={LinkuWeb.RenkuComponent}
               scope={@scope}
               renku={renku}
-
             />
           </div>
         </div>
@@ -134,8 +133,8 @@ defmodule LinkuWeb.HomeLive do
   def handle_info({Linku.Notebooks, %Events.RenkuPublished{renku: renku} = event}, socket) do
     {:noreply,
      socket
-     |> stream_insert(:renkus, renku)
-     |> stream_new_log(event)}
+      |> stream_insert(:renkus, renku)
+      |> stream_new_log(event)}
   end
 
   def handle_info({Linku.Notebooks, %Events.RenkuDeleted{renku: renku} = event}, socket) do
@@ -164,6 +163,13 @@ defmodule LinkuWeb.HomeLive do
   def handle_event("reposition", %{"id" => id, "new" => new_idx, "old" => _old_idx}, socket) do
     renku = Notebooks.get_renku!(socket.assigns.scope, id)
     Notebooks.update_renku_position(socket.assigns.scope, renku, new_idx)
+    {:noreply, socket}
+  end
+
+  def handle_event("publish-renku", %{"id" => id}, socket) do
+    renku = Notebooks.get_renku!(socket.assigns.scope, id)
+    socket =  stream_delete(socket, :renkus, renku)
+    Notebooks.publish_renku(socket.assigns.scope, renku)
     {:noreply, socket}
   end
 

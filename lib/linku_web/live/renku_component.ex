@@ -27,8 +27,8 @@ defmodule LinkuWeb.RenkuComponent do
         data-renku_id={@renku.id}
         data-max_lines={@max_lines}
       >
-        <div class="space-x-3 py-5"
-        :if={!@renku.published_at and @line_count == @max_lines}
+        <div class="space-x-3"
+         :if={!@renku.published_at and @line_count == @max_lines}
         >
           Congrats!  This renku has reached its max length and can now be published.
         </div>
@@ -205,7 +205,8 @@ defmodule LinkuWeb.RenkuComponent do
          socket
          |> stream_insert(:lines, to_change_form(new_line, %{}))
          |> stream_delete(:lines, empty_form)
-         |> maybe_insert_empty_form(line_count, max_lines, empty_form)}
+         |> maybe_insert_empty_form(line_count, max_lines, empty_form)
+        }
 
       {:error, changeset} ->
         {:noreply, stream_insert(socket, :lines, to_change_form(changeset, params, :insert))}
@@ -238,8 +239,9 @@ defmodule LinkuWeb.RenkuComponent do
   def handle_event("publish", _params, socket) do
     renku = Notebooks.get_renku!(socket.assigns.scope, socket.assigns.renku_id)
     Notebooks.publish_renku(socket.assigns.scope, renku)
+    assign(socket, renku_published: true)
 
-    {:noreply, socket}
+    {:noreply, push_redirect(socket, to: ~p"/home")}
   end
 
   def handle_event("reset", _, socket) do
