@@ -22,7 +22,7 @@ defmodule LinkuWeb.JournalLive do
           :for={{id, renku} <- @streams.renkus}
           id={id}
           data-id={renku.id}
-          class="bg-slate-50 py-4 rounded-lg my-4"
+          class="bg-slate-50 py-4 rounded-lg my-4 opacity-75"
         >
           <div class="mx-auto max-w-7xl px-4 space-y-4">
             <.header>
