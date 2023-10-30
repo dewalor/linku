@@ -241,7 +241,7 @@ defmodule LinkuWeb.RenkuComponent do
     Notebooks.publish_renku(socket.assigns.scope, renku)
     assign(socket, renku_published: true)
 
-    {:noreply, push_redirect(socket, to: ~p"/home")}
+    {:noreply, push_navigate(socket, to: ~p"/home")}
   end
 
   def handle_event("reset", _, socket) do
