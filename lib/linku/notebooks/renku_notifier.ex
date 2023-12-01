@@ -28,7 +28,14 @@ defmodule Linku.Notebooks.RenkuNotifier do
     ==============================
     Hi #{initiator.email},
 
-    #{invitee.email} has completed the last line of the renku #{renku.title}.  The renku has reached its maximum length and can now be published:
+    #{invitee.email} has completed the last line of the renku #{renku.title}.  The renku has reached its maximum length and can now be published.
+
+    By clicking the Publish button:
+    1. you confirm the poem is original, unpublished work
+                and
+    2. you give Linku the right to publish the poem
+
+    Upon publication, the rights to the poem will revert to you.
 
     #{url}
 
