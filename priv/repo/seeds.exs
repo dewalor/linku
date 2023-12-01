@@ -2,24 +2,24 @@ alias Linku.{Accounts, Notebooks, Scope, Collaborations}
 
   Accounts.register_user(%{
    email: "ira@example.com",
-   password: "contrasena123"
+   password: "nosecreto123"
   })
 
   Accounts.register_user(%{
     email: "wailee@example.com",
-    password: "contrasena123"
+    password: "nosecreto123"
   })
 
   {:ok, user_1} =
     Accounts.register_user(%{
       email: "iugen@example.com",
-      password: "contrasena123"
+      password: "nosecreto123"
     })
 
   {:ok, user_2} =
     Accounts.register_user(%{
      email: "basho@example.com",
-     password: "contrasena123"
+     password: "nosecreto123"
     })
 
   scope_3 = Scope.for_user(user_1)
