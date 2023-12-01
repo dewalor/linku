@@ -28,18 +28,17 @@ defmodule Linku.Collaborations.InvitationNotifier do
 
       Check this out.  Your friend #{sender_email} sent you an invitation to write a renku, a collaborative poem.
 
-      By clicking on the link below, you confirm:
+      The link will take you to the Linku site, where you may:
+      1. login or create an account if you don't have one
+              or
+      2. enter your email and receive a Magic Link to login without creating a password.
 
+      By clicking on the link below, you confirm:
       1. you are human
              and
       2. you give Linku permission to send you e-mails.
 
       #{url}
-
-      The link will take you to the Linku site, where you may:
-      1. login or create an account if you don't have one
-              or
-      2. enter your email and receive a Magic Link to login without creating a password.
 
     ==============================
 
