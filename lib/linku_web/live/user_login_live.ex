@@ -40,7 +40,7 @@ defmodule LinkuWeb.UserLoginLive do
         <.input field={@form[:email]} type="email" label="Email" required />
         <:actions>
           <.button class="w-full">
-            Send me a link <.icon name="hero-envelope" />
+            Send me a magic login link <.icon name="hero-envelope" />
           </.button>
         </:actions>
       </.simple_form>

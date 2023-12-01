@@ -283,7 +283,6 @@ defmodule Linku.Notebooks do
         union: ^renku_invitee_query,
         limit: ^limit
       )
-      # order_by: [asc: :position]
 
     # active_renkus_query should return the above renkus with these lines preloaded:
     # 1. if the current user initiated any renkus, they should see all the lines in those renkus AND
