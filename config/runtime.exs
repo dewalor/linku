@@ -71,8 +71,10 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   config :linku, Linku.Mailer,
-    adapter: Swoosh.Adapters.Mailgun,
-    api_key: mailgun_api_key,
+    server: "smtp.domain",
+    port: 587,
+    username: System.get_env("SMTP_USERNAME"),
+    password: System.get_env("SMTP_PASSWORD"),
     domain: "renku.earth"
 
   # ## SSL Support
