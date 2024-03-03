@@ -40,6 +40,7 @@ defmodule Linku.Collaborations.InvitationNotifier do
 
       #{url}
 
+      If you do not click on this link, you will receive no further e-mails from Linku.
     ==============================
 
     """)
