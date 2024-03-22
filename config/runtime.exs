@@ -48,10 +48,16 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  mailgun_api_key =
-    System.get_env("MAILGUN_API_KEY") ||
+  aws_access_key =
+    System.get_env("AWS_ACCESS_KEY") ||
       raise """
-      environment variable MAILGUN_API_KEY is missing.
+      environment variable AWS_ACCESS_KEY is missing.
+      """
+
+  aws_secret_key =
+    System.get_env("AWS_SECRET_KEY") ||
+      raise """
+      environment variable AWS_SECRET_KEY is missing.
       """
 
   host = System.get_env("PHX_HOST") || "renku.earth"
@@ -71,11 +77,10 @@ if config_env() == :prod do
     secret_key_base: secret_key_base
 
   config :linku, Linku.Mailer,
-    server: "smtp.domain",
-    port: 587,
-    username: System.get_env("SMTP_USERNAME"),
-    password: System.get_env("SMTP_PASSWORD"),
-    domain: "renku.earth"
+    adapter: Swoosh.Adapters.AmazonSES,
+    region: "us-east-2",
+    access_key: aws_access_key,
+    secret: aws_secret_key
 
   # ## SSL Support
   #
