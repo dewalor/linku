@@ -18,9 +18,11 @@ defmodule Linku.Collaborations.InvitationNotifier do
   end
 
   def deliver_invitation(invitee_email, sender_email, invitation_key) do
-    url = "#{LinkuWeb.Endpoint.url()}/invitations/#{invitation_key}"
+    url = LinkuWeb.Endpoint.url()
+          |> maybe_remove_port()
+          |> Kernel.<>("/invitations/#{invitation_key}")
 
-    deliver(invitee_email, sender_email, """
+    deliver(invitee_email, "invitation to collaborate on a poem", """
 
     ==============================
 
@@ -44,5 +46,13 @@ defmodule Linku.Collaborations.InvitationNotifier do
     ==============================
 
     """)
+  end
+
+  defp maybe_remove_port(url) do
+    if String.contains?(url, "localhost"), do: url, else: remove_port(String.split(url, ":"))
+  end
+
+  defp remove_port([protocol, host, _]) do
+    protocol <> ":" <> host
   end
 end
