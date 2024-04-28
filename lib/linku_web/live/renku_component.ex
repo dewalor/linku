@@ -9,12 +9,6 @@ defmodule LinkuWeb.RenkuComponent do
   alias Linku.Collaborations
 
   def render(assigns) do
-    #   <.live_component
-    #   if={form[:invitations]}
-    #   module={InvitationLive.FormComponent}
-    #   invitation={@invitation}
-    #   id="invitation-form"
-    # />
     ~H"""
     <div>
       <div
@@ -97,7 +91,27 @@ defmodule LinkuWeb.RenkuComponent do
                     </.inputs_for>
                   </div>
 
-              </div>
+
+                  <!-- NEW NEW LINE BUTTON - if the current line has already been saved, don't display the button for this line - just display a new blank line with a New Line button
+                      check the last element of assigns.lines to see if this is the last line or if there's a new line?
+                      change show_new_line to show_new_line_button_at line #
+                  -->
+                    <%= @line_count %>
+                    <%= @new_line_at %>
+                    <%= form.data.position %>
+                  <.button
+                  :if={
+                    assigns.scope.current_user_id == @renku_initiator_id && (@line_count == 0 || @line_count < @max_lines) && !form.data.id
+                    || assigns.scope.current_user && (@current_invitee_email && assigns.scope.current_user.email == @current_invitee_email)}
+                  phx-click={form.data.id && JS.dispatch("submit", to: "##{form.id}");JS.push("new", value: %{at: -1, renku_id: @renku.id}, target: @myself)}
+                  class="mt-4"
+                  >
+                  New Line
+                  </.button>
+
+
+
+                  </div>
             </div>
           </.simple_form>
         </div>
@@ -109,7 +123,7 @@ defmodule LinkuWeb.RenkuComponent do
         phx-click={JS.push("new", value: %{at: -1, renku_id: @renku.id}, target: @myself)}
         class="mt-4"
       >
-        New Line
+        New Line Old
       </.button>
       <.button
       :if={
@@ -127,8 +141,13 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   def update(%{event: %Events.LineAdded{line: line}}, socket) do
+    #if the renku hasn't reached its last line
     socket = if line.position < socket.assigns.max_lines-1 do
-      stream_insert(assign(socket, display_invitation_pencil: true), :lines, to_change_form(line, %{}))
+      socket
+        |> assign( display_invitation_pencil: true)
+        |> assign( show_new_line: true)
+
+      stream_insert(socket, :lines, to_change_form(line, %{}))
     else
       assign(socket, show_new_line: false)
     end
@@ -164,6 +183,7 @@ defmodule LinkuWeb.RenkuComponent do
           display_invitation_pencil: false,
           display_invitations: is_nil(renku.published_at),
           show_new_line: line_count < max_lines,
+          new_line_at:  line_count,
           scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end
@@ -220,14 +240,8 @@ defmodule LinkuWeb.RenkuComponent do
     {:noreply, socket}
   end
 
-  def handle_event("toggle_complete", %{"id" => id}, socket) do
-    line = Notebooks.get_line!(socket.assigns.scope, id)
-    {:ok, _line} = Notebooks.toggle_complete(socket.assigns.scope, line)
-
-    {:noreply, socket}
-  end
-
   def handle_event("new", %{"at" => at}, socket) do
+    socket = assign(socket, new_line_at: socket.assigns.line_count + 1)
     line = build_line(socket.assigns.renku_id)
     {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
   end
