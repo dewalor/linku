@@ -168,7 +168,13 @@ defmodule Linku.Notebooks do
   end
 
   def get_line!(%Scope{} = scope, id) do
-    from(t in Line, where: t.id == ^id and t.user_id == ^scope.current_user.id)
+    from(l in Line, where: l.id == ^id and l.user_id == ^scope.current_user.id)
+    |> Repo.one!()
+    |> Repo.preload(:renku)
+  end
+
+  def get_line_by_position!(%Scope{} = scope, position) do
+    from(l in Line, where: l.position == ^position and l.user_id == ^scope.current_user.id)
     |> Repo.one!()
     |> Repo.preload(:renku)
   end

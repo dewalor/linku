@@ -59,6 +59,7 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-mounted={!form.data.id && JS.focus()}
                   phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
                   phx-key="escape"
+                  phx-change={JS.push("line_changed", value: %{at: form.data.position, renku_id: @renku.id}, target: @myself)}
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
                 />
@@ -90,28 +91,7 @@ defmodule LinkuWeb.RenkuComponent do
                       />
                     </.inputs_for>
                   </div>
-
-
-                  <!-- NEW NEW LINE BUTTON - if the current line has already been saved, don't display the button for this line - just display a new blank line with a New Line button
-                      check the last element of assigns.lines to see if this is the last line or if there's a new line?
-                      change show_new_line to show_new_line_button_at line #
-                  -->
-                    <%= @line_count %>
-                    <%= @new_line_at %>
-                    <%= form.data.position %>
-                  <.button
-                  :if={
-                    assigns.scope.current_user_id == @renku_initiator_id && (@line_count == 0 || @line_count < @max_lines) && !form.data.id
-                    || assigns.scope.current_user && (@current_invitee_email && assigns.scope.current_user.email == @current_invitee_email)}
-                  phx-click={form.data.id && JS.dispatch("submit", to: "##{form.id}");JS.push("new", value: %{at: -1, renku_id: @renku.id}, target: @myself)}
-                  class="mt-4"
-                  >
-                  New Line
-                  </.button>
-
-
-
-                  </div>
+                </div>
             </div>
           </.simple_form>
         </div>
@@ -123,7 +103,7 @@ defmodule LinkuWeb.RenkuComponent do
         phx-click={JS.push("new", value: %{at: -1, renku_id: @renku.id}, target: @myself)}
         class="mt-4"
       >
-        New Line Old
+        New Line
       </.button>
       <.button
       :if={
@@ -183,7 +163,7 @@ defmodule LinkuWeb.RenkuComponent do
           display_invitation_pencil: false,
           display_invitations: is_nil(renku.published_at),
           show_new_line: line_count < max_lines,
-          new_line_at:  line_count,
+          line_changed_at: nil,
           scope: assigns.scope)
      |> stream(:lines, line_forms)}
   end
@@ -240,10 +220,33 @@ defmodule LinkuWeb.RenkuComponent do
     {:noreply, socket}
   end
 
-  def handle_event("new", %{"at" => at}, socket) do
-    socket = assign(socket, new_line_at: socket.assigns.line_count + 1)
+  def handle_event("new", %{"at" => at}, %{assigns: %{line_changed_at: nil}} = socket) do
     line = build_line(socket.assigns.renku_id)
     {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
+  end
+
+  def handle_event("new", %{"at" => at}, %{assigns: %{line_changed_at: line_changed_at}} = socket) do
+    socket
+      |> maybe_update_changed_line(line_changed_at)
+      |> maybe_clear_line_changed_at(line_changed_at)
+      |>
+
+      #save unchanged line if any, before creating new line, per user expectations
+      if !is_nil(line_changed_at) do
+        line = get_line_by_position!(socket.assigns.scope.id, line_changed_at)
+        line.save
+      end
+        #clear line_changed_at in socket assigns
+      socket = assign(socket, line_changed_at: nil)
+
+    line = build_line(socket.assigns.renku_id)
+    {:noreply, stream_insert(socket, :lines, to_change_form(line, %{}), at: at)}
+  end
+
+  def handle_event("line_changed", %{"at" => at}, socket) do
+    socket = assign(socket, line_changed_at: at)
+
+    {:noreply, socket}
   end
 
   def handle_event("invite", %{"id" => line_id}, socket) do
