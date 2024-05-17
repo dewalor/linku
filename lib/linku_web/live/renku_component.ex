@@ -65,7 +65,7 @@ defmodule LinkuWeb.RenkuComponent do
                   phx-mounted={!form.data.id && JS.focus()}
                   phx-keydown={!form.data.id && JS.push("discard", target: @myself)}
                   phx-key="escape"
-                  phx-change={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
+                  phx-change="save"
                   phx-debounce="2000"
                   phx-blur={form.data.id && JS.dispatch("submit", to: "##{form.id}")}
                   phx-target={@myself}
