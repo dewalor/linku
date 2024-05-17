@@ -207,7 +207,6 @@ defmodule LinkuWeb.RenkuComponent do
          socket
          |> stream_insert(:lines, to_change_form(new_line, %{}))
          |> stream_delete(:lines, empty_form)
-         |> maybe_insert_empty_form(line_count, max_lines, empty_form)
         }
 
       {:error, changeset} ->
@@ -294,12 +293,4 @@ defmodule LinkuWeb.RenkuComponent do
   end
 
   defp build_line(renku_id), do: %Line{renku_id: renku_id}
-
-  defp maybe_insert_empty_form(socket, line_count, max_lines, empty_form) do
-    socket = case line_count + 1 do
-      low when low < max_lines -> stream_insert(socket, :lines, empty_form)
-      _ -> socket
-    end
-    socket
-  end
 end
