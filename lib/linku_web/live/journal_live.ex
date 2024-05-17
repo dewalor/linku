@@ -5,14 +5,11 @@ defmodule LinkuWeb.JournalLive do
 
   def render(assigns) do
     ~H"""
-    <ul class="relative z-10 flex items-center gap-4 justify-start -ml-64 -mt-16 mb-20">
+    <div class="relative z-10 flex -mt-16 mb-20">
       <%= if @current_user do %>
-
-        <li>
         <.back navigate={~p"/home"}>Back to Dashboard</.back>
-        </li>
       <% end %>
-    </ul>
+    </div>
     <div id="feed" class="space-y-5">
       <div
         id="renkus"
