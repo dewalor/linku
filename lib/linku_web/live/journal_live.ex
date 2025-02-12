@@ -67,7 +67,7 @@ defmodule LinkuWeb.JournalLive do
      |> stream(:renkus, renkus)}
   end
 
-  def handle_params(params, uri, socket) do
+  def handle_params(params, _uri, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 

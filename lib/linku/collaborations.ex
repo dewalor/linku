@@ -127,9 +127,9 @@ defmodule Linku.Collaborations do
   end
 
   defp generate_random_key() do
-    :crypto.strong_rand_bytes(8)
+    :crypto.strong_rand_bytes(16)
     |> Base.url_encode64()
     |> String.replace(~r/[-_\=]/, "")
-    |> Kernel.binary_part(0, 8)
+    |> Kernel.binary_part(0, 16)
   end
 end
