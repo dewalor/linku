@@ -9,6 +9,7 @@ defmodule LinkuWeb.UserRegistrationLive do
     <div class="mx-auto max-w-sm">
       <.header class="text-center">
         Register for an account
+        Note: User registration has been temporarily disabled.
         <:subtitle>
           Already registered?
           <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
