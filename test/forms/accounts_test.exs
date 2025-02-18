@@ -17,6 +17,29 @@ defmodule Linku.AccountsTest do
     end
   end
 
+  describe "get_confirmed_user_by_email_and_password/2" do
+    test "does not return the user if the email does not exist" do
+      refute Accounts.get_confirmed_user_by_email_and_password("unknown@example.com", "hello world!")
+    end
+
+    test "does not return the user if the password is not valid" do
+      user = user_fixture()
+      refute Accounts.get_confirmed_user_by_email_and_password(user.email, "invalid")
+    end
+
+    test "does not return the user if the user is not confirmed" do
+      user = user_fixture()
+      refute Accounts.get_confirmed_user_by_email_and_password(user.email, "invalid")
+    end
+
+    test "returns a confirmed user if the email and password are valid" do
+      %{id: id} = user = user_fixture(%{confirmed_at: NaiveDateTime.utc_now()})
+
+      assert %User{id: ^id} =
+               Accounts.get_confirmed_user_by_email_and_password(user.email, valid_user_password())
+    end
+  end
+
   describe "get_user_by_email_and_password/2" do
     test "does not return the user if the email does not exist" do
       refute Accounts.get_user_by_email_and_password("unknown@example.com", "hello world!")

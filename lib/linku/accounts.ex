@@ -26,6 +26,12 @@ defmodule Linku.Accounts do
     Repo.get_by(User, email: email)
   end
 
+  def get_confirmed_user_by_email_and_password(email, password)
+      when is_binary(email) and is_binary(password) do
+    user = Repo.get_by(User, email: email)
+    if User.valid_password?(user, password) && !is_nil(user.confirmed_at), do: user
+  end
+
   @doc """
   Gets a user by email and password.
 
@@ -330,6 +336,15 @@ defmodule Linku.Accounts do
 
   def get_user_by_email_token(token, context) do
     with {:ok, query} <- UserToken.verify_email_token_query(token, context),
+         %User{} = user <- Repo.one(query) do
+      user
+    else
+      _ -> nil
+    end
+  end
+
+  def get_confirmed_user_by_email_token(token, context) do
+    with {:ok, query} <- UserToken.verify_email_token_for_confirmed_user_query(token, context),
          %User{} = user <- Repo.one(query) do
       user
     else

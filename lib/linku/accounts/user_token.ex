@@ -127,6 +127,27 @@ defmodule Linku.Accounts.UserToken do
     end
   end
 
+  def verify_email_token_for_confirmed_user_query(token, context) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+        days = days_for_context(context)
+
+        query =
+          from token in token_and_context_query(hashed_token, context),
+            join: user in assoc(token, :user),
+            where: token.inserted_at > ago(^days, "day") and token.sent_to == user.email,
+            select: user,
+            where: not is_nil user.confirmed_at
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
+  end
+
+
   defp days_for_context("confirm"), do: @confirm_validity_in_days
   defp days_for_context("reset_password"), do: @reset_password_validity_in_days
   defp days_for_context("magic_link"), do: @magic_link_validity_in_days
