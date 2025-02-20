@@ -44,7 +44,7 @@ defmodule LinkuWeb.UserSessionController do
 
       _ ->
         conn
-        |> put_flash(:error, "That link didn't seem to work. Please try again.")
+        |> put_flash(:error, "The link was invalid or your account is unconfirmed. Please check the link or look for a confirmation message in your email and try again.")
         |> redirect(to: ~p"/users/log_in")
     end
   end
