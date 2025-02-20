@@ -353,7 +353,7 @@ defmodule Linku.Accounts do
   end
 
   @doc """
-  Resets the user password.
+  Resets the user password.  Confirms the user if unconfirmed, since the user got here via a reset password email.
 
   ## Examples
 
@@ -365,8 +365,13 @@ defmodule Linku.Accounts do
 
   """
   def reset_user_password(user, attrs) do
+    changeset =
+      user
+        |> User.password_changeset(attrs)
+        |> User.confirm_changeset()
+
     Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, User.password_changeset(user, attrs))
+    |> Ecto.Multi.update(:user, changeset)
     |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, :all))
     |> Repo.transaction()
     |> case do
